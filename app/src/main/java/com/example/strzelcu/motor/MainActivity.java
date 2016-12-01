@@ -1,15 +1,19 @@
 package com.example.strzelcu.motor;
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.os.Process;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
+
 
 public class MainActivity extends AppCompatActivity {
+
+    public final static String EXTRA_MESSAGE = "com.example.strzelcu.motor.MESSAGE";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -17,15 +21,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+        getSupportActionBar().setLogo(R.mipmap.ic_launcher);
     }
 
     @Override
@@ -41,12 +37,33 @@ public class MainActivity extends AppCompatActivity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
+        Intent i;
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        switch (item.getItemId()) {
+
+            case R.id.action_routes:
+                i = new Intent(this, RoutesActivity.class);
+                this.startActivity(i);
+                return true;
+
+            case R.id.action_settings:
+                i = new Intent(this, SettingsActivity.class);
+                this.startActivity(i);
+                return true;
+
+            case R.id.action_exit:
+                super.finish();
+                android.os.Process.killProcess(Process.myPid());
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+
         }
-
-        return super.onOptionsItemSelected(item);
     }
+
+    private void showMsg(String msg) {
+        Toast toast = Toast.makeText(this, msg, Toast.LENGTH_LONG);
+        toast.show();
+    }
+
 }
