@@ -3,6 +3,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.example.strzelcu.motor.MainActivity">
     <item
+        android:id="@+id/action_gps"
+        android:icon="@drawable/ic_gps_fixed_white_24dp"
+        android:orderInCategory="1"
+        android:title="@string/actionGps"
+        app:showAsAction="ifRoom" />
+    <item
         android:id="@+id/action_routes"
         android:orderInCategory="98"
         android:title="@string/action_routes"

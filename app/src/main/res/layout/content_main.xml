@@ -14,7 +14,133 @@
     tools:showIn="@layout/activity_main">
 
     <TextView
+        android:text="@string/latitudeLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!" />
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:id="@+id/latitudeLabel" />
+
+    <TextView
+        android:text="@string/longitudeLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/longitudeLabel"
+        android:layout_below="@+id/latitudeLabel"
+        android:layout_alignParentStart="true"
+        android:layout_alignEnd="@+id/latitudeLabel" />
+
+    <TextView
+        android:text="@string/numberOfSatellitesLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/numberOfSatellitesLabel"
+        android:layout_below="@+id/longitudeLabel"
+        android:layout_alignParentStart="true"
+        android:layout_alignEnd="@+id/latitudeLabel" />
+
+    <TextView
+        android:text="@string/currentSpeedLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/numberOfSatellitesLabel"
+        android:layout_alignParentStart="true"
+        android:id="@+id/currentSpeedLabel"
+        android:layout_alignEnd="@+id/numberOfSatellitesLabel" />
+
+    <TextView
+        android:text="@string/cityLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/currentSpeedLabel"
+        android:layout_alignParentStart="true"
+        android:id="@+id/cityLabel"
+        android:layout_alignEnd="@+id/currentSpeedLabel" />
+
+    <TextView
+        android:text="@string/postalCodeLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/cityLabel"
+        android:layout_alignParentStart="true"
+        android:id="@+id/postalCodeLabel"
+        android:layout_alignEnd="@+id/cityLabel" />
+
+    <Button
+        android:layout_width="150pt"
+        android:layout_height="150pt"
+        android:id="@+id/mainButton"
+        tools:background="@drawable/monitor_button_green"
+        android:background="@drawable/monitor_button_green"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="32dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:id="@+id/latitudeValue"
+        android:layout_alignParentEnd="true"
+        android:layout_toEndOf="@+id/latitudeLabel" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/latitudeValue"
+        android:id="@+id/longitudeValue"
+        android:layout_alignParentEnd="true"
+        android:layout_toEndOf="@+id/latitudeLabel" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/longitudeValue"
+        android:id="@+id/satellitesValue"
+        android:layout_alignParentEnd="true"
+        android:layout_toEndOf="@+id/longitudeLabel" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/cityLabel"
+        android:id="@+id/speedValue"
+        android:layout_alignParentEnd="true"
+        android:layout_toEndOf="@+id/numberOfSatellitesLabel" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/streetLabel"
+        android:layout_below="@+id/postalCodeLabel"
+        android:layout_alignParentStart="true"
+        android:text="@string/streetLabel"
+        android:layout_toStartOf="@+id/pincodeValue" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/cityValue"
+        android:layout_alignBaseline="@+id/cityLabel"
+        android:layout_alignBottom="@+id/cityLabel"
+        android:layout_alignParentEnd="true"
+        android:layout_toEndOf="@+id/currentSpeedLabel" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/pincodeValue"
+        android:layout_alignBaseline="@+id/postalCodeLabel"
+        android:layout_alignBottom="@+id/postalCodeLabel"
+        android:layout_alignParentEnd="true"
+        android:layout_toEndOf="@+id/cityLabel" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/pincodeValue"
+        android:id="@+id/streetValue"
+        android:layout_alignParentEnd="true"
+        android:layout_toEndOf="@+id/postalCodeLabel" />
+
 </RelativeLayout>

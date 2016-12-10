@@ -8,7 +8,7 @@
     <!-- Strings related to Settings -->
 
     <!-- Example General settings -->
-    <string name="pref_header_general">General</string>
+    <string name="pref_header_general">Ogólne</string>
 
     <string name="pref_title_social_recommendations">Enable social recommendations</string>
     <string name="pref_description_social_recommendations">Recommendations for people to contact
@@ -81,4 +81,15 @@
         "Material is the metaphor.\n\n"
     </string>
     <string name="title_activity_maps">Map</string>
+
+    <!-- Strings of layout labels -->
+    <string name="latitudeLabel">Szerokość geograficzna:</string>
+    <string name="longitudeLabel">Długość geograficzna:</string>
+    <string name="numberOfSatellitesLabel">Ilość satelit:</string>
+    <string name="currentSpeedLabel">Aktualna prędkość:</string>
+    <string name="cityLabel">Miasto:</string>
+    <string name="postalCodeLabel">Kod pocztowy:</string>
+    <string name="actionGps">Ustawienia GPS</string>
+    <string name="streetLabel">Ulica:</string>
+
 </resources>
