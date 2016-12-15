@@ -82,7 +82,8 @@
         android:layout_alignParentTop="true"
         android:id="@+id/latitudeValue"
         android:layout_alignParentEnd="true"
-        android:layout_toEndOf="@+id/latitudeLabel" />
+        android:layout_toEndOf="@+id/latitudeLabel"
+        android:gravity="center" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -90,7 +91,8 @@
         android:layout_below="@+id/latitudeValue"
         android:id="@+id/longitudeValue"
         android:layout_alignParentEnd="true"
-        android:layout_toEndOf="@+id/latitudeLabel" />
+        android:layout_toEndOf="@+id/latitudeLabel"
+        android:gravity="center" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -98,7 +100,8 @@
         android:layout_below="@+id/longitudeValue"
         android:id="@+id/satellitesValue"
         android:layout_alignParentEnd="true"
-        android:layout_toEndOf="@+id/longitudeLabel" />
+        android:layout_toEndOf="@+id/longitudeLabel"
+        android:gravity="center" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -106,7 +109,8 @@
         android:layout_above="@+id/cityLabel"
         android:id="@+id/speedValue"
         android:layout_alignParentEnd="true"
-        android:layout_toEndOf="@+id/numberOfSatellitesLabel" />
+        android:layout_toEndOf="@+id/numberOfSatellitesLabel"
+        android:gravity="center" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -124,7 +128,8 @@
         android:layout_alignBaseline="@+id/cityLabel"
         android:layout_alignBottom="@+id/cityLabel"
         android:layout_alignParentEnd="true"
-        android:layout_toEndOf="@+id/currentSpeedLabel" />
+        android:layout_toEndOf="@+id/currentSpeedLabel"
+        android:gravity="center" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -133,7 +138,8 @@
         android:layout_alignBaseline="@+id/postalCodeLabel"
         android:layout_alignBottom="@+id/postalCodeLabel"
         android:layout_alignParentEnd="true"
-        android:layout_toEndOf="@+id/cityLabel" />
+        android:layout_toEndOf="@+id/cityLabel"
+        android:gravity="center" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -141,6 +147,7 @@
         android:layout_below="@+id/pincodeValue"
         android:id="@+id/streetValue"
         android:layout_alignParentEnd="true"
-        android:layout_toEndOf="@+id/postalCodeLabel" />
+        android:layout_toEndOf="@+id/postalCodeLabel"
+        android:gravity="center" />
 
 </RelativeLayout>

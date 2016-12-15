@@ -1,5 +1,6 @@
 package com.example.strzelcu.motor;
 
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.TaskStackBuilder;
 import android.content.Context;
@@ -13,20 +14,25 @@ import android.support.v7.app.NotificationCompat;
 public class Notification {
 
     NotificationCompat.Builder mBuilder;
+    NotificationCompat.Builder notification;
+    TaskStackBuilder stackBuilder;
+    PendingIntent pIntent;
+    Intent resultIntent;
     android.app.NotificationManager mNotificationManager;
     int id = 1;
 
-    public void showNotification(Context context) {
+    public void showNotificationMonitoring(Context context) {
         mNotificationManager = (android.app.NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         mBuilder =
                 (NotificationCompat.Builder) new NotificationCompat.Builder(context)
                         .setSmallIcon(R.mipmap.ic_launcher)
-                        .setContentTitle("Monitorowanie")
+                        .setTicker("Rozpoczynam monitorowanie")
+                        .setContentTitle("MotoR")
                         .setContentText("Monitoruję jazdę.")
+                        .setPriority(NotificationCompat.PRIORITY_HIGH)
                         .setOngoing(true);
         Intent resultIntent = new Intent(context, MainActivity.class);
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
-        stackBuilder.addParentStack(MainActivity.class);
         stackBuilder.addNextIntent(resultIntent);
         PendingIntent resultPendingIntent =
                 stackBuilder.getPendingIntent(
@@ -36,7 +42,6 @@ public class Notification {
         mBuilder.setContentIntent(resultPendingIntent);
         mNotificationManager.notify(id, mBuilder.build());
     }
-
 
     public void hideNotification() {
         mNotificationManager.cancelAll();

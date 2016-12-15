@@ -1,24 +1,26 @@
 package com.example.strzelcu.motor;
 
-import android.*;
 import android.Manifest;
 import android.app.Service;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.GpsSatellite;
+import android.location.GpsStatus;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Binder;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
-import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.widget.Toast;
+
+import java.util.List;
+import java.util.Locale;
 
 /**
  * Created by Strzelcu on 2016-12-05.
@@ -26,90 +28,82 @@ import android.widget.Toast;
 
 public class GpsService extends Service {
 
-    /* Deklaracje */
-
-    /* ## Obiekty */
-
     private final IBinder mBinder = new LocalBinder();
-    LocationManager myManager;
-    LocationListener gps;
-    private Handler handler = new Handler();
-
-    /* ## Zmienne */
+    private static final String LOGSERVICE = "Location";
     private double latitude;
     private double longitude;
     private double speed;
-    private int satellites;
+    private String city;
+    private String pincode;
+    private String street;
+    private String SatellitesInView;
+    private String SatellitesInUse;
+    private GpsStatus mGpsStatus;
+    LocationManager locationManager;
+    LocationListener locationListener;
+    Geocoder geocoder;
+    protected GpsListener gpsListener = new GpsListener();
+
+    public void startGPS() {
+        if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            showMsg("Brak uprawnień do usług lokalizacji");
+            return;
+        }
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 30, 2, locationListener);
+        locationManager.addGpsStatusListener(gpsListener);
+
+    }
+
+    public void stopGPS() {
+        if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            showMsg("Brak uprawnień do usług lokalizacji");
+            return;
+        }
+        locationManager.removeUpdates(locationListener);
+    }
+
+    class GpsListener implements GpsStatus.Listener {
+        @Override
+        public void onGpsStatusChanged(int event) {
+            int iCountInView = 0;
+            int iCountInUse = 0;
+            if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                showMsg("Brak uprawnień do usług lokalizacji");
+                return;
+            }
+            mGpsStatus = locationManager.getGpsStatus(mGpsStatus);
+            Iterable<GpsSatellite> satellites = mGpsStatus.getSatellites();
+            if (satellites != null) {
+                for (GpsSatellite gpsSatellite : satellites) {
+                    iCountInView++;
+                    if (gpsSatellite.usedInFix()) {
+                        iCountInUse++;
+                    }
+                }
+            }
+
+            SatellitesInView = String.valueOf(iCountInView);
+            SatellitesInUse = String.valueOf(iCountInUse);
+
+        }
+    }
 
     @Override
     public IBinder onBind(Intent intent) {
         return mBinder;
     }
 
-    public void startGPS() {
-
-        Toast.makeText(getApplicationContext(), "Monitorowanie rozpoczęte", Toast.LENGTH_SHORT).show();
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
-        }
-        myManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 30, 2, gps);
-
-    }
-
-    public void stopGPS() {
-
-        Toast.makeText(getApplicationContext(), "Monitorowanie zakończone", Toast.LENGTH_SHORT).show();
-        if (ActivityCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Napisać metodę żądającą dostępu do lokalizacji dla API > 21
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
-        }
-        myManager.removeUpdates(gps);
-        latitude = 0;
-        longitude = 0;
-        speed = 0;
-        satellites = 0;
-
-    }
-
-    public double getLatitude() {
-        return latitude;
-    }
-
-    public double getLongitude() {
-        return longitude;
-    }
-
-    public int getSpeed() {
-        return (int) (speed * 3.6);
-    }
-
-    public int getSatellites() {return satellites; }
-
     public class LocalBinder extends Binder {
-
         GpsService getService() {
-            gps = new LocationListener() {
+            locationListener = new LocationListener() {
                 @Override
                 public void onLocationChanged(Location location) {
                     Log.e("System", "Latitude " + location.getLatitude());
                     Log.e("System", "Longitude " + location.getLongitude());
                     latitude = location.getLatitude();
                     longitude = location.getLongitude();
-                    speed = location.getSpeed() * 1.3;
-
+                    speed = location.getSpeed();
+                    updateAddress(location.getLatitude(),location.getLongitude());
                 }
 
                 @Override
@@ -127,14 +121,76 @@ public class GpsService extends Service {
                 }
 
             };
-            myManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
-
+            locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
             return GpsService.this;
         }
     }
 
-    public int showGPSAlert() {
-        Toast.makeText(getApplicationContext(), "Usługi lokalizacji wyłączone", Toast.LENGTH_SHORT).show();
-        return 0;
+    // Help methods
+
+    private void updateAddress(double latitude, double longitude)
+    {
+        try
+        {
+            Geocoder gcd = new Geocoder(this, Locale.getDefault());
+            List<Address> addresses = gcd.getFromLocation(latitude, longitude, 1);
+            if (addresses.size() > 0)
+            {
+
+                city = addresses.get(0).getLocality();
+                pincode = addresses.get(0).getPostalCode();
+                street = addresses.get(0).getAddressLine(0);
+
+            }
+        }
+
+        catch (Exception e)
+        {
+            city = "Niedostępne";
+            pincode = "Niedostępne";
+            street = "Niedostępne";
+            Log.e("System","Sieć wyłączona");
+        }
+
     }
+
+    private void showMsg(String msg) {
+        Toast toast = Toast.makeText(this, msg, Toast.LENGTH_LONG);
+        toast.show();
+    }
+
+    // Public getters
+
+    public String getLatitude() {
+        return Double.toString(latitude);
+    }
+
+    public String getLongitude() {
+        return Double.toString(longitude);
+    }
+
+    public String getSpeed() {
+        return Double.toString(speed);
+    }
+
+    public String getSatellitesInView() {
+        return SatellitesInView;
+    }
+
+    public String getSatellitesInUse() {
+        return SatellitesInUse;
+    }
+
+    public String getStreet() {
+        return street;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public String getPincode() {
+        return pincode;
+    }
+
 }

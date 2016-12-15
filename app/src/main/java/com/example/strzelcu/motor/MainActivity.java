@@ -1,42 +1,30 @@
 package com.example.strzelcu.motor;
 
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.app.TaskStackBuilder;
+import android.*;
+import android.Manifest;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.graphics.Color;
+import android.content.pm.PackageManager;
 import android.location.LocationManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Process;
 import android.provider.Settings;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.app.NotificationCompat;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.google.android.gms.appindexing.Action;
-import com.google.android.gms.appindexing.AppIndex;
-import com.google.android.gms.appindexing.Thing;
-import com.google.android.gms.common.api.GoogleApiClient;
-
-import static com.example.strzelcu.motor.R.drawable.monitor_button_yellow;
-
 
 public class MainActivity extends AppCompatActivity {
 
@@ -51,15 +39,37 @@ public class MainActivity extends AppCompatActivity {
     static final String STATE_MONITORING_TEXT = "MONITORING";
     static final String STATE_MONITORING_COLOR = "0";
 
+    // Permissions static variable
+    static final int PERMISSION_LOCATION_CODE = 1;
+
     // Declarations
 
-    public final static String EXTRA_MESSAGE = "com.example.strzelcu.motor.MESSAGE";
     boolean isMonitorOn = false;
     Notification note = new Notification();
+    Thread UIThread;
 
-    //Instance of GpsService class
-    protected GpsService gps;
+    //GPS Service
+    GpsService gpsService;
+    private ServiceConnection mConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+            // We've bound to LocalService, cast the IBinder and get LocalService instance
+            GpsService.LocalBinder binder = (GpsService.LocalBinder) service;
+            gpsService = binder.getService();
+            isServiceGPSConnect = true;
+            Log.e("System", "GpsService is binded");
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            isServiceGPSConnect = false;
+            Log.e("System", "GpsService is unbinded");
+        }
+    };
     protected boolean isServiceGPSConnect = false;
+    Intent gpsServiceIntent;
 
     //Interface
     protected TextView latitudeText;
@@ -70,11 +80,6 @@ public class MainActivity extends AppCompatActivity {
     protected TextView pincodeText;
     protected TextView streetText;
     protected Button monitoring;
-    /**
-     * ATTENTION: This was auto-generated to implement the App Indexing API.
-     * See https://g.co/AppIndexing/AndroidStudio for more information.
-     */
-    private GoogleApiClient client;
 
     // Activity life cycle
 
@@ -101,10 +106,21 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                if (!isMonitorOn) {
-                    monitoring.setBackgroundResource(R.drawable.monitor_button_green_tint);
-                } else {
-                    monitoring.setBackgroundResource(R.drawable.monitor_button_yellow_tint);
+                switch(event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        if (!isMonitorOn) {
+                            monitoring.setBackgroundResource(R.drawable.monitor_button_green_tint);
+                        } else {
+                            monitoring.setBackgroundResource(R.drawable.monitor_button_yellow_tint);
+                        }
+                        return false;
+                    case MotionEvent.ACTION_UP:
+                        if (!isMonitorOn) {
+                            monitoring.setBackgroundResource(R.drawable.monitor_button_green);
+                        } else {
+                            monitoring.setBackgroundResource(R.drawable.monitor_button_yellow);
+                        }
+                        return false;
                 }
                 return false;
             }
@@ -118,51 +134,38 @@ public class MainActivity extends AppCompatActivity {
                         isMonitorOn = true;
                         monitoring.setBackgroundResource(R.drawable.monitor_button_yellow);
                         Log.e("System", "Monitor started");
-                        note.showNotification(getApplicationContext());
-
-                        /*if (isGPSEnabled(MainActivity.this)) {
-                            gps.startGPS();
-                        }*/
-
+                        note.showNotificationMonitoring(getApplicationContext());
+                        gpsService.startGPS();
+                        updateUI();
                     } else {
-                        gps.showGPSAlert();
+                        showMsg("Lokalizacja wyłączona.");
                     }
 
                 } else {
                     monitoring.setBackgroundResource(R.drawable.monitor_button_green);
                     Log.e("System", "Monitor stopped");
+                    gpsService.stopGPS();
                     note.hideNotification();
                     isMonitorOn = false;
-                    if (isServiceGPSConnect) {
-                        gps.stopGPS();
-                    }
                 }
             }
         });
 
-        /* Start GPS service */
-
-        Intent gps = new Intent(this, GpsService.class);
-        bindService(gps, mConnection, Context.BIND_AUTO_CREATE);
-
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
     @Override
     public void onStart() {
+        gpsServiceIntent = new Intent(this, GpsService.class);
+        bindService(gpsServiceIntent, mConnection, Context.BIND_AUTO_CREATE);
+        startService(gpsServiceIntent);
+        startUIThread();
         super.onStart();
-
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        client.connect();
-        AppIndex.AppIndexApi.start(client, getIndexApiAction());
     }
 
     @Override
     public void onResume() {
         Log.e("System", "Main activity resumed");
+        checkPermissions();
         locationAlert();
         super.onResume();
     }
@@ -170,22 +173,18 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onStop() {
         Log.e("System", "Main activity stopped");
-        super.onStop();// ATTENTION: This was auto-generated to implement the App Indexing API.
-// See https://g.co/AppIndexing/AndroidStudio for more information.
-        AppIndex.AppIndexApi.end(client, getIndexApiAction());
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        client.disconnect();
+        if (isServiceGPSConnect) {
+            unbindService(mConnection);
+            isServiceGPSConnect = false;
+        }
+        stopUIThread();
+        super.onStop();
     }
 
     @Override
     public void onDestroy() {
         Log.e("System", "Main activity destroyed");
         super.onDestroy();
-        if (isServiceGPSConnect) {
-            unbindService(mConnection);
-            isServiceGPSConnect = false;
-        }
     }
 
     // Saving activity state
@@ -194,11 +193,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         if (savedInstanceState != null) {
             isMonitorOn = savedInstanceState.getBoolean(STATE_MONITOR);
-            if (isMonitorOn) {
-                monitoring.setBackgroundResource(R.drawable.monitor_button_yellow);
-            } else {
-                monitoring.setBackgroundResource(R.drawable.monitor_button_green);
-            }
             cityText.setText(savedInstanceState.getCharSequence(STATE_CITY));
             latitudeText.setText(savedInstanceState.getCharSequence(STATE_LATITUDE));
             longitudeText.setText(savedInstanceState.getCharSequence(STATE_LONGITUDE));
@@ -252,6 +246,7 @@ public class MainActivity extends AppCompatActivity {
                 return true;
 
             case R.id.action_exit:
+                stopService(gpsServiceIntent);
                 super.finish();
                 Process.killProcess(Process.myPid());
                 return true;
@@ -290,42 +285,76 @@ public class MainActivity extends AppCompatActivity {
             builder.setNegativeButton("Anuluj", null);
             builder.create().show();
             return;
-        } else {
+        }
+
+    }
+
+    public void checkPermissions() {
+        if (ActivityCompat.checkSelfPermission(this,
+                    android.Manifest.permission.ACCESS_COARSE_LOCATION)
+                    != PackageManager.PERMISSION_GRANTED &&
+                    ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION)
+                            != PackageManager.PERMISSION_GRANTED) {
+
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
+                        PERMISSION_LOCATION_CODE);
 
         }
     }
 
-    private ServiceConnection mConnection = new ServiceConnection() {
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case PERMISSION_LOCATION_CODE: {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
-        @Override
-        public void onServiceConnected(ComponentName className,
-                                       IBinder service) {
-
-            GpsService.LocalBinder binder = (GpsService.LocalBinder) service;
-            gps = binder.getService();
-            isServiceGPSConnect = true;
+                } else {
+                    showMsg("Brak uprawnień do korzystania z lokalizacji.");
+                    checkPermissions();
+                }
+                return;
+            }
         }
-
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-            isServiceGPSConnect = false;
-        }
-    };
-
-    /**
-     * ATTENTION: This was auto-generated to implement the App Indexing API.
-     * See https://g.co/AppIndexing/AndroidStudio for more information.
-     */
-    public Action getIndexApiAction() {
-        Thing object = new Thing.Builder()
-                .setName("Main Page") // TODO: Define a title for the content shown.
-                // TODO: Make sure this auto-generated URL is correct.
-                .setUrl(Uri.parse("http://[ENTER-YOUR-URL-HERE]"))
-                .build();
-        return new Action.Builder(Action.TYPE_VIEW)
-                .setObject(object)
-                .setActionStatus(Action.STATUS_TYPE_COMPLETED)
-                .build();
     }
 
+    // Updating UI
+    private void startUIThread() {
+        UIThread = new Thread() {
+            @Override
+            public void run() {
+                try {
+                    while (!isInterrupted()) {
+                        Thread.sleep(2000);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                updateUI();
+                            }
+                        });
+                    }
+                } catch (InterruptedException ignored) {
+                }
+            }
+        };
+        Log.e("System", "UI Thread starts");
+        UIThread.start();
+    }
+
+    private  void stopUIThread() {
+        UIThread.interrupt();
+        Log.e("System", "UI Thread stops");
+    }
+
+    public void updateUI() {
+        latitudeText.setText(gpsService.getLatitude());
+        longitudeText.setText(gpsService.getLongitude());
+        satellites.setText(gpsService.getSatellitesInUse() + " / " + gpsService.getSatellitesInView());
+        speedText.setText(gpsService.getSpeed());
+        cityText.setText(gpsService.getCity());
+        pincodeText.setText(gpsService.getPincode());
+        streetText.setText(gpsService.getStreet());
+    }
 }
