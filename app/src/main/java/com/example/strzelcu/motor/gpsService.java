@@ -36,8 +36,8 @@ public class GpsService extends Service {
     private String city;
     private String pincode;
     private String street;
-    private String SatellitesInView;
-    private String SatellitesInUse;
+    private String SatellitesInView = "0";
+    private String SatellitesInUse = "0";
     private GpsStatus mGpsStatus;
     LocationManager locationManager;
     LocationListener locationListener;
@@ -82,8 +82,15 @@ public class GpsService extends Service {
                 }
             }
 
-            SatellitesInView = String.valueOf(iCountInView);
-            SatellitesInUse = String.valueOf(iCountInUse);
+            if (String.valueOf(iCountInView) == null && String.valueOf(iCountInUse) == null) {
+                SatellitesInView = "0";
+                SatellitesInUse = "0";
+            } else {
+                SatellitesInView = String.valueOf(iCountInView);
+                SatellitesInUse = String.valueOf(iCountInUse);
+            }
+
+
 
         }
     }
@@ -170,7 +177,8 @@ public class GpsService extends Service {
     }
 
     public String getSpeed() {
-        return Double.toString(speed);
+        Double speed = this.speed*3.6;
+        return "" + speed.intValue();
     }
 
     public String getSatellitesInView() {

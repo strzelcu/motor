@@ -22,6 +22,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -137,6 +138,7 @@ public class MainActivity extends AppCompatActivity {
                         note.showNotificationMonitoring(getApplicationContext());
                         gpsService.startGPS();
                         updateUI();
+                        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
                     } else {
                         showMsg("Lokalizacja wyłączona.");
                     }
@@ -146,6 +148,7 @@ public class MainActivity extends AppCompatActivity {
                     Log.e("System", "Monitor stopped");
                     gpsService.stopGPS();
                     note.hideNotification();
+                    getWindow().clearFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
                     isMonitorOn = false;
                 }
             }
