@@ -1,6 +1,5 @@
-package com.example.strzelcu.motor;
+package com.tomaszstrzelecki.motor;
 
-import android.*;
 import android.Manifest;
 import android.content.ComponentName;
 import android.content.Context;
@@ -250,6 +249,7 @@ public class MainActivity extends AppCompatActivity {
 
             case R.id.action_exit:
                 stopService(gpsServiceIntent);
+                note.hideNotification();
                 super.finish();
                 Process.killProcess(Process.myPid());
                 return true;
@@ -287,7 +287,6 @@ public class MainActivity extends AppCompatActivity {
             });
             builder.setNegativeButton("Anuluj", null);
             builder.create().show();
-            return;
         }
 
     }
@@ -318,7 +317,6 @@ public class MainActivity extends AppCompatActivity {
                     showMsg("Brak uprawnień do korzystania z lokalizacji.");
                     checkPermissions();
                 }
-                return;
             }
         }
     }

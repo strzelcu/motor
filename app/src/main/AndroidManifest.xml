@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.strzelcu.motor">
+    package="com.tomaszstrzelecki.motor">
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
@@ -13,10 +13,13 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <service
-            android:name=".GpsService"
+            android:name="com.tomaszstrzelecki.motor.GpsService"
+            android:exported="false"/>
+        <service
+            android:name="com.tomaszstrzelecki.motor.AppService"
             android:exported="false"/>
         <activity
-            android:name=".MainActivity"
+            android:name="com.tomaszstrzelecki.motor.MainActivity"
             android:screenOrientation="portrait"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
@@ -27,13 +30,13 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".SettingsActivity"
+            android:name="com.tomaszstrzelecki.motor.SettingsActivity"
             android:screenOrientation="portrait"
             android:label="@string/title_activity_settings"
-            android:parentActivityName=".MainActivity">
+            android:parentActivityName="com.tomaszstrzelecki.motor.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.strzelcu.motor.MainActivity" />
+                android:value="com.tomaszstrzelecki.motor.MainActivity" />
         </activity>
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
@@ -48,21 +51,21 @@
             android:value="@string/google_maps_key" />
 
         <activity
-            android:name=".MapsActivity"
+            android:name="com.tomaszstrzelecki.motor.MapsActivity"
             android:label="@string/title_activity_maps">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.strzelcu.motor.MainActivity" />
+                android:value="com.tomaszstrzelecki.motor.MainActivity" />
         </activity>
         <activity
-            android:name=".RoutesActivity"
+            android:name="com.tomaszstrzelecki.motor.RoutesActivity"
             android:screenOrientation="portrait"
             android:label="@string/title_activity_routes"
-            android:parentActivityName=".MainActivity"
+            android:parentActivityName="com.tomaszstrzelecki.motor.MainActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.strzelcu.motor.MainActivity" />
+                android:value="com.tomaszstrzelecki.motor.MainActivity" />
         </activity><!-- ATTENTION: This was auto-generated to add Google Play services to your project for
      App Indexing.  See https://g.co/AppIndexing/AndroidStudio for more information. -->
         <meta-data

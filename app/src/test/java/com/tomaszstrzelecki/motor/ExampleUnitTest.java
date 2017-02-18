@@ -1,4 +1,4 @@
-package com.example.strzelcu.motor;
+package com.tomaszstrzelecki.motor;
 
 import org.junit.Test;
 

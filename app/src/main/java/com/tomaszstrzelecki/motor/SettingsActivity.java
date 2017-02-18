@@ -1,4 +1,4 @@
-package com.example.strzelcu.motor;
+package com.tomaszstrzelecki.motor;
 
 
 import android.annotation.TargetApi;
@@ -20,6 +20,8 @@ import android.preference.RingtonePreference;
 import android.text.TextUtils;
 import android.view.MenuItem;
 import android.support.v4.app.NavUtils;
+
+import com.tomaszstrzelecki.motor.R;
 
 import java.util.List;
 

@@ -1,27 +1,18 @@
-package com.example.strzelcu.motor;
+package com.tomaszstrzelecki.motor;
 
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v7.app.NotificationCompat;
 
-/**
- * Created by Strzelcu on 2016-12-10.
- */
-
 public class Notification {
 
-    NotificationCompat.Builder mBuilder;
-    NotificationCompat.Builder notification;
-    TaskStackBuilder stackBuilder;
-    PendingIntent pIntent;
-    Intent resultIntent;
-    android.app.NotificationManager mNotificationManager;
-    int id = 1;
+    private NotificationCompat.Builder mBuilder;
+    private android.app.NotificationManager mNotificationManager;
+    private int id = 1;
 
-    public void showNotificationMonitoring(Context context) {
+    void showNotificationMonitoring(Context context) {
         mNotificationManager = (android.app.NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         mBuilder =
                 (NotificationCompat.Builder) new NotificationCompat.Builder(context)
@@ -43,7 +34,7 @@ public class Notification {
         mNotificationManager.notify(id, mBuilder.build());
     }
 
-    public void hideNotification() {
+    void hideNotification() {
         mNotificationManager.cancelAll();
     }
 

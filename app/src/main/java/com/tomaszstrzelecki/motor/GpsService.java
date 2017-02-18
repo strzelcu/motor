@@ -1,4 +1,4 @@
-package com.example.strzelcu.motor;
+package com.tomaszstrzelecki.motor;
 
 import android.Manifest;
 import android.app.Service;
@@ -19,6 +19,8 @@ import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.tomaszstrzelecki.motor.interfaces.GpsInterface;
+
 import java.util.List;
 import java.util.Locale;
 
@@ -26,7 +28,7 @@ import java.util.Locale;
  * Created by Strzelcu on 2016-12-05.
  */
 
-public class GpsService extends Service {
+public class GpsService extends Service implements GpsInterface{
 
     private final IBinder mBinder = new LocalBinder();
     private static final String LOGSERVICE = "Location";
