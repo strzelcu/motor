@@ -107,8 +107,8 @@ public class GpsService extends Service implements GpsInterface{
             locationListener = new LocationListener() {
                 @Override
                 public void onLocationChanged(Location location) {
-                    Log.e("System", "Latitude " + location.getLatitude());
-                    Log.e("System", "Longitude " + location.getLongitude());
+                    Log.e("Coordinates", "Latitude " + location.getLatitude());
+                    Log.e("Coordinates", "Longitude " + location.getLongitude());
                     latitude = location.getLatitude();
                     longitude = location.getLongitude();
                     speed = location.getSpeed();

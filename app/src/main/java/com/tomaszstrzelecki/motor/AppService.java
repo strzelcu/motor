@@ -13,6 +13,8 @@ import com.tomaszstrzelecki.motor.interfaces.GpsInterface;
 
 public class AppService extends Service implements GpsInterface {
 
+    public boolean isMonitorOn = false;
+
     // Declarations
     private final IBinder mBinder = new AppService.LocalBinder();
 
@@ -29,6 +31,8 @@ public class AppService extends Service implements GpsInterface {
     }
 
     //GPS Service
+    protected boolean isServiceGPSConnect = false;
+    Intent gpsServiceIntent;
     GpsService gpsService;
     private ServiceConnection mConnection = new ServiceConnection() {
 
@@ -39,6 +43,7 @@ public class AppService extends Service implements GpsInterface {
             gpsService = binder.getService();
             isServiceGPSConnect = true;
             Log.e("System", "GpsService is binded to AppService");
+            gpsService.startGPS();
         }
 
         @Override
@@ -47,8 +52,6 @@ public class AppService extends Service implements GpsInterface {
             Log.e("System", "GpsService is unbinded from AppService");
         }
     };
-    protected boolean isServiceGPSConnect = false;
-    Intent gpsServiceIntent;
 
     // Service lifecycle
 
@@ -58,7 +61,6 @@ public class AppService extends Service implements GpsInterface {
         gpsServiceIntent = new Intent(this, GpsService.class);
         bindService(gpsServiceIntent, mConnection, Context.BIND_AUTO_CREATE);
         startService(gpsServiceIntent);
-        gpsService.startGPS();
         super.onCreate();
     }
 
@@ -73,51 +75,51 @@ public class AppService extends Service implements GpsInterface {
 
     @Override
     public void startGPS() {
-
+        gpsService.startGPS();
     }
 
     @Override
     public void stopGPS() {
-
+        gpsService.stopGPS();
     }
 
     @Override
     public String getLatitude() {
-        return "";
+        return gpsService.getLatitude();
     }
 
     @Override
     public String getLongitude() {
-        return "";
+        return gpsService.getLongitude();
     }
 
     @Override
     public String getSpeed() {
-        return "";
+        return gpsService.getSpeed();
     }
 
     @Override
     public String getSatellitesInView() {
-        return "";
+        return gpsService.getSatellitesInView();
     }
 
     @Override
     public String getSatellitesInUse() {
-        return "";
+        return gpsService.getSatellitesInUse();
     }
 
     @Override
     public String getStreet() {
-        return "";
+        return gpsService.getStreet();
     }
 
     @Override
     public String getCity() {
-        return "";
+        return gpsService.getCity();
     }
 
     @Override
     public String getPincode() {
-        return "";
+        return gpsService.getPincode();
     }
 }

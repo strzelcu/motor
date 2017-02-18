@@ -28,17 +28,6 @@ import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
-    // Instance state
-    static final String STATE_MONITOR = "false";
-    static final String STATE_LATITUDE = "LATITUDE";
-    static final String STATE_LONGITUDE = "LONGITUDE";
-    static final String STATE_SPEED = "SPEED";
-    static final String STATE_CITY = "CITY";
-    static final String STATE_PINCODE = "PINCODE";
-    static final String STATE_STREET = "STREET";
-    static final String STATE_MONITORING_TEXT = "MONITORING";
-    static final String STATE_MONITORING_COLOR = "0";
-
     // Permissions static variable
     static final int PERMISSION_LOCATION_CODE = 1;
 
@@ -48,28 +37,29 @@ public class MainActivity extends AppCompatActivity {
     Notification note = new Notification();
     Thread UIThread;
 
-    //GPS Service
-    GpsService gpsService;
+    //App Service
+    AppService appService;
+    protected boolean isAppServiceConnect = false;
+    Intent appServiceIntent;
     private ServiceConnection mConnection = new ServiceConnection() {
 
         @Override
         public void onServiceConnected(ComponentName className,
                                        IBinder service) {
             // We've bound to LocalService, cast the IBinder and get LocalService instance
-            GpsService.LocalBinder binder = (GpsService.LocalBinder) service;
-            gpsService = binder.getService();
-            isServiceGPSConnect = true;
-            Log.e("System", "GpsService is binded");
+            AppService.LocalBinder binder = (AppService.LocalBinder) service;
+            appService = binder.getService();
+            isAppServiceConnect = true;
+            updateUI();
+            Log.e("System", "AppService is binded to MainActivity");
         }
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
-            isServiceGPSConnect = false;
-            Log.e("System", "GpsService is unbinded");
+            isAppServiceConnect = false;
+            Log.e("System", "AppService is unbinded from MainActivity");
         }
     };
-    protected boolean isServiceGPSConnect = false;
-    Intent gpsServiceIntent;
 
     //Interface
     protected TextView latitudeText;
@@ -135,7 +125,6 @@ public class MainActivity extends AppCompatActivity {
                         monitoring.setBackgroundResource(R.drawable.monitor_button_yellow);
                         Log.e("System", "Monitor started");
                         note.showNotificationMonitoring(getApplicationContext());
-                        gpsService.startGPS();
                         updateUI();
                         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
                     } else {
@@ -145,7 +134,6 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     monitoring.setBackgroundResource(R.drawable.monitor_button_green);
                     Log.e("System", "Monitor stopped");
-                    gpsService.stopGPS();
                     note.hideNotification();
                     getWindow().clearFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
                     isMonitorOn = false;
@@ -157,9 +145,9 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onStart() {
-        gpsServiceIntent = new Intent(this, GpsService.class);
-        bindService(gpsServiceIntent, mConnection, Context.BIND_AUTO_CREATE);
-        startService(gpsServiceIntent);
+        appServiceIntent = new Intent(this, AppService.class);
+        bindService(appServiceIntent, mConnection, Context.BIND_AUTO_CREATE);
+        startService(appServiceIntent);
         startUIThread();
         super.onStart();
     }
@@ -175,9 +163,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onStop() {
         Log.e("System", "Main activity stopped");
-        if (isServiceGPSConnect) {
+        if (isAppServiceConnect) {
             unbindService(mConnection);
-            isServiceGPSConnect = false;
+            isAppServiceConnect = false;
         }
         stopUIThread();
         super.onStop();
@@ -187,37 +175,6 @@ public class MainActivity extends AppCompatActivity {
     public void onDestroy() {
         Log.e("System", "Main activity destroyed");
         super.onDestroy();
-    }
-
-    // Saving activity state
-
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        if (savedInstanceState != null) {
-            isMonitorOn = savedInstanceState.getBoolean(STATE_MONITOR);
-            cityText.setText(savedInstanceState.getCharSequence(STATE_CITY));
-            latitudeText.setText(savedInstanceState.getCharSequence(STATE_LATITUDE));
-            longitudeText.setText(savedInstanceState.getCharSequence(STATE_LONGITUDE));
-            pincodeText.setText(savedInstanceState.getCharSequence(STATE_PINCODE));
-            speedText.setText(savedInstanceState.getCharSequence(STATE_SPEED));
-            streetText.setText(savedInstanceState.getCharSequence(STATE_STREET));
-            monitoring.setText(savedInstanceState.getCharSequence(STATE_MONITORING_TEXT));
-        }
-        super.onRestoreInstanceState(savedInstanceState);
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle savedInstanceState) {
-        savedInstanceState.putBoolean(STATE_MONITOR, isMonitorOn);
-        savedInstanceState.putInt(STATE_MONITORING_COLOR, monitoring.getBackground().hashCode());
-        savedInstanceState.putString(STATE_CITY, (String) cityText.getText());
-        savedInstanceState.putString(STATE_LATITUDE, (String) latitudeText.getText());
-        savedInstanceState.putString(STATE_LONGITUDE, (String) longitudeText.getText());
-        savedInstanceState.putString(STATE_PINCODE, (String) pincodeText.getText());
-        savedInstanceState.putString(STATE_SPEED, (String) speedText.getText());
-        savedInstanceState.putString(STATE_STREET, (String) streetText.getText());
-        savedInstanceState.putString(STATE_MONITORING_TEXT, (String) this.monitoring.getText());
-        super.onSaveInstanceState(savedInstanceState);
     }
 
     @Override
@@ -248,8 +205,8 @@ public class MainActivity extends AppCompatActivity {
                 return true;
 
             case R.id.action_exit:
-                stopService(gpsServiceIntent);
-                note.hideNotification();
+                appService.onDestroy();
+                stopService(appServiceIntent);
                 super.finish();
                 Process.killProcess(Process.myPid());
                 return true;
@@ -350,12 +307,22 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void updateUI() {
-        latitudeText.setText(gpsService.getLatitude());
-        longitudeText.setText(gpsService.getLongitude());
-        satellites.setText(gpsService.getSatellitesInUse() + " / " + gpsService.getSatellitesInView());
-        speedText.setText(gpsService.getSpeed());
-        cityText.setText(gpsService.getCity());
-        pincodeText.setText(gpsService.getPincode());
-        streetText.setText(gpsService.getStreet());
+        try {
+            latitudeText.setText(appService.getLatitude());
+            longitudeText.setText(appService.getLongitude());
+            satellites.setText(appService.getSatellitesInUse() + " / " + appService.getSatellitesInView());
+            speedText.setText(appService.getSpeed());
+            cityText.setText(appService.getCity());
+            pincodeText.setText(appService.getPincode());
+            streetText.setText(appService.getStreet());
+        } catch (Exception e) {
+            latitudeText.setText("Szukam...");
+            longitudeText.setText("Szukam...");
+            satellites.setText("0/0");
+            speedText.setText("Niedostępne");
+            cityText.setText("Niedostępne");
+            pincodeText.setText("Niedostępne");
+            streetText.setText("Niedostępne");
+        }
     }
 }
