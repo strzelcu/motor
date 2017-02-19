@@ -10,13 +10,15 @@ import android.os.IBinder;
 import android.util.Log;
 
 import com.tomaszstrzelecki.motor.interfaces.GpsInterface;
+import com.tomaszstrzelecki.motor.util.Notifications;
 
 public class AppService extends Service implements GpsInterface {
 
-    public boolean isMonitorOn = false;
+    public static boolean isMonitorOn = false;
 
     // Declarations
     private final IBinder mBinder = new AppService.LocalBinder();
+    private Notifications note = new Notifications(this);
 
 
     // Service binder methods
@@ -43,7 +45,7 @@ public class AppService extends Service implements GpsInterface {
             gpsService = binder.getService();
             isServiceGPSConnect = true;
             Log.e("System", "GpsService is binded to AppService");
-            gpsService.startGPS();
+            startGPS();
         }
 
         @Override
@@ -52,6 +54,20 @@ public class AppService extends Service implements GpsInterface {
             Log.e("System", "GpsService is unbinded from AppService");
         }
     };
+
+    // Public methods controling workflow
+
+    public void startMonitoring() {
+        isMonitorOn = true;
+        Log.e("System", "Monitor started");
+        note.showNotificationMonitoring();
+    }
+
+    public void stopMonitoring() {
+        isMonitorOn = false;
+        Log.e("System", "Monitor stopped");
+        note.hideNotification();
+    }
 
     // Service lifecycle
 
@@ -68,6 +84,7 @@ public class AppService extends Service implements GpsInterface {
     public void onDestroy() {
         gpsService.stopGPS();
         stopService(gpsServiceIntent);
+        if(isMonitorOn) stopMonitoring();
         super.onDestroy();
     }
 
@@ -81,6 +98,12 @@ public class AppService extends Service implements GpsInterface {
     @Override
     public void stopGPS() {
         gpsService.stopGPS();
+    }
+
+    public void restartGPS() {
+        if(isServiceGPSConnect) {
+            startGPS();
+        }
     }
 
     @Override

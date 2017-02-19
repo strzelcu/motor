@@ -24,14 +24,9 @@ import com.tomaszstrzelecki.motor.interfaces.GpsInterface;
 import java.util.List;
 import java.util.Locale;
 
-/**
- * Created by Strzelcu on 2016-12-05.
- */
-
 public class GpsService extends Service implements GpsInterface{
 
     private final IBinder mBinder = new LocalBinder();
-    private static final String LOGSERVICE = "Location";
     private double latitude;
     private double longitude;
     private double speed;
@@ -43,7 +38,6 @@ public class GpsService extends Service implements GpsInterface{
     private GpsStatus mGpsStatus;
     LocationManager locationManager;
     LocationListener locationListener;
-    Geocoder geocoder;
     protected GpsListener gpsListener = new GpsListener();
 
     public void startGPS() {
@@ -84,15 +78,8 @@ public class GpsService extends Service implements GpsInterface{
                 }
             }
 
-            if (String.valueOf(iCountInView) == null && String.valueOf(iCountInUse) == null) {
-                SatellitesInView = "0";
-                SatellitesInUse = "0";
-            } else {
-                SatellitesInView = String.valueOf(iCountInView);
-                SatellitesInUse = String.valueOf(iCountInUse);
-            }
-
-
+            SatellitesInView = String.valueOf(iCountInView);
+            SatellitesInUse = String.valueOf(iCountInUse);
 
         }
     }
@@ -155,10 +142,10 @@ public class GpsService extends Service implements GpsInterface{
 
         catch (Exception e)
         {
-            city = "Niedostępne";
-            pincode = "Niedostępne";
-            street = "Niedostępne";
-            Log.e("System","Sieć wyłączona");
+            city = null;
+            pincode = null;
+            street = null;
+            Log.e("System","No network to get adresses.");
         }
 
     }
