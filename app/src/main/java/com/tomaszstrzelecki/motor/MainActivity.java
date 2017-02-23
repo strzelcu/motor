@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Process;
 import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -23,8 +24,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import com.tomaszstrzelecki.motor.util.Notifications;
+
+import static com.tomaszstrzelecki.motor.AppService.isMonitorOn;
+import static com.tomaszstrzelecki.motor.R.mipmap.ic_launcher;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -33,8 +39,7 @@ public class MainActivity extends AppCompatActivity {
 
     // Declarations
 
-    boolean isMonitorOn = false;
-    Notification note = new Notification();
+    Notifications note = new Notifications(this);
     Thread UIThread;
 
     //App Service
@@ -51,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
             appService = binder.getService();
             isAppServiceConnect = true;
             updateUI();
+            appService.restartGPS();
             Log.e("System", "AppService is binded to MainActivity");
         }
 
@@ -70,6 +76,8 @@ public class MainActivity extends AppCompatActivity {
     protected TextView pincodeText;
     protected TextView streetText;
     protected Button monitoring;
+    protected ImageView monitoringImage;
+    protected TextView monitoringTextView;
 
     // Activity life cycle
 
@@ -79,7 +87,11 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setLogo(R.mipmap.ic_launcher);
+        try {
+            getSupportActionBar().setLogo(ic_launcher);
+        } catch (NullPointerException e) {
+            Log.e("System", "Can't set logo in the action bar. " + e.getMessage());
+        }
         Log.e("System", "Main activity created");
 
         //Graphics objects
@@ -91,6 +103,8 @@ public class MainActivity extends AppCompatActivity {
         cityText = (TextView) findViewById(R.id.cityValue);
         pincodeText = (TextView) findViewById(R.id.pincodeValue);
         streetText = (TextView) findViewById(R.id.streetValue);
+        monitoringImage = (ImageView) findViewById(R.id.main_button_image_view);
+        monitoringTextView = (TextView) findViewById(R.id.main_button_text);
 
         monitoring.setOnTouchListener(new View.OnTouchListener() {
 
@@ -121,22 +135,21 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 if (!isMonitorOn) {
                     if (isGPSEnabled(MainActivity.this)) {
-                        isMonitorOn = true;
                         monitoring.setBackgroundResource(R.drawable.monitor_button_yellow);
-                        Log.e("System", "Monitor started");
-                        note.showNotificationMonitoring(getApplicationContext());
-                        updateUI();
+                        monitoringImage.setImageResource(R.drawable.ic_stop_black_48dp);
+                        monitoringTextView.setText(R.string.main_button_text_stop);
                         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                        appService.startMonitoring();
                     } else {
-                        showMsg("Lokalizacja wyłączona.");
+                        note.showToastMsg("Lokalizacja wyłączona.");
                     }
 
                 } else {
                     monitoring.setBackgroundResource(R.drawable.monitor_button_green);
-                    Log.e("System", "Monitor stopped");
-                    note.hideNotification();
+                    monitoringImage.setImageResource(R.drawable.ic_play_arrow_black_48dp);
+                    monitoringTextView.setText(R.string.main_button_text_start);
                     getWindow().clearFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-                    isMonitorOn = false;
+                    appService.stopMonitoring();
                 }
             }
         });
@@ -156,19 +169,23 @@ public class MainActivity extends AppCompatActivity {
     public void onResume() {
         Log.e("System", "Main activity resumed");
         checkPermissions();
+        refreshMonitoringButton();
         locationAlert();
         super.onResume();
     }
 
     @Override
     public void onStop() {
-        Log.e("System", "Main activity stopped");
         if (isAppServiceConnect) {
             unbindService(mConnection);
             isAppServiceConnect = false;
         }
+        if(!isMonitorOn) {
+            appService.stopGPS();
+        }
         stopUIThread();
         super.onStop();
+        Log.e("System", "Main activity stopped");
     }
 
     @Override
@@ -186,10 +203,6 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
         Intent i;
 
         switch (item.getItemId()) {
@@ -220,11 +233,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /* %%%%%%%%%%%%%%%%%%%%%%%%%%%% Help methods %%%%%%%%%%%%%%%%%%%%%%%%%%%%  */
-
-    private void showMsg(String msg) {
-        Toast toast = Toast.makeText(this, msg, Toast.LENGTH_LONG);
-        toast.show();
-    }
 
     public boolean isGPSEnabled(Context mContext) {
         LocationManager lm = (LocationManager)
@@ -264,14 +272,11 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
+                                           @NonNull String permissions[], @NonNull int[] grantResults) {
         switch (requestCode) {
             case PERMISSION_LOCATION_CODE: {
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-                } else {
-                    showMsg("Brak uprawnień do korzystania z lokalizacji.");
+                if (grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                    note.showToastMsg("Brak uprawnień do korzystania z lokalizacji.");
                     checkPermissions();
                 }
             }
@@ -279,6 +284,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Updating UI
+
     private void startUIThread() {
         UIThread = new Thread() {
             @Override
@@ -310,19 +316,40 @@ public class MainActivity extends AppCompatActivity {
         try {
             latitudeText.setText(appService.getLatitude());
             longitudeText.setText(appService.getLongitude());
-            satellites.setText(appService.getSatellitesInUse() + " / " + appService.getSatellitesInView());
+            satellites.setText(getString(R.string.using) + appService.getSatellitesInUse()
+                    + " | "
+                    +  getString(R.string.available) +
+                    appService.getSatellitesInView());
             speedText.setText(appService.getSpeed());
-            cityText.setText(appService.getCity());
-            pincodeText.setText(appService.getPincode());
-            streetText.setText(appService.getStreet());
+            if(appService.getCity() == null && appService.getPincode() == null && appService.getStreet() == null) {
+                cityText.setText(R.string.not_available);
+                pincodeText.setText(R.string.not_available);
+                streetText.setText(R.string.not_available);
+            } else {
+                cityText.setText(appService.getCity());
+                pincodeText.setText(appService.getPincode());
+                streetText.setText(appService.getStreet());
+            }
         } catch (Exception e) {
-            latitudeText.setText("Szukam...");
-            longitudeText.setText("Szukam...");
-            satellites.setText("0/0");
-            speedText.setText("Niedostępne");
-            cityText.setText("Niedostępne");
-            pincodeText.setText("Niedostępne");
-            streetText.setText("Niedostępne");
+            latitudeText.setText(R.string.searching);
+            longitudeText.setText(R.string.searching);
+            satellites.setText(getString(R.string.using) + " 0 / 0 " + getString(R.string.available));
+            speedText.setText("0");
+            cityText.setText(R.string.not_available);
+            pincodeText.setText(R.string.not_available);
+            streetText.setText(R.string.not_available);
+        }
+    }
+
+    public void refreshMonitoringButton() {
+        if (!isMonitorOn) {
+            monitoring.setBackgroundResource(R.drawable.monitor_button_green);
+            monitoringTextView.setText(R.string.main_button_text_start);
+            monitoringImage.setImageResource(R.drawable.ic_play_arrow_black_48dp);
+        } else {
+            monitoring.setBackgroundResource(R.drawable.monitor_button_yellow);
+            monitoringTextView.setText(R.string.main_button_text_stop);
+            monitoringImage.setImageResource(R.drawable.ic_stop_black_48dp);
         }
     }
 }

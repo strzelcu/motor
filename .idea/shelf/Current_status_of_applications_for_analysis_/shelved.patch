@@ -1,0 +1,321 @@
+Index: app/src/main/AndroidManifest.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/AndroidManifest.xml	(revision 8e99f516ae8b2737e96a726eb69058cf29701ab8)
++++ app/src/main/AndroidManifest.xml	(revision )
+@@ -13,8 +13,11 @@
+         android:supportsRtl="true"
+         android:theme="@style/AppTheme">
+         <service
+-            android:name=".GpsService"
++            android:name=".AppService$GpsService"
+             android:exported="false"/>
++        <service
++            android:name=".AppService"
++            android:exported="false"/>
+         <activity
+             android:name=".MainActivity"
+             android:screenOrientation="portrait"
+@@ -69,5 +72,4 @@
+             android:name="com.google.android.gms.version"
+             android:value="@integer/google_play_services_version" />
+     </application>
+-
+ </manifest>
+\ No newline at end of file
+Index: app/src/main/java/com/example/strzelcu/motor/MainActivity.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/example/strzelcu/motor/MainActivity.java	(revision 8e99f516ae8b2737e96a726eb69058cf29701ab8)
++++ app/src/main/java/com/example/strzelcu/motor/MainActivity.java	(revision )
+@@ -1,6 +1,5 @@
+ package com.example.strzelcu.motor;
+ 
+-import android.*;
+ import android.Manifest;
+ import android.content.ComponentName;
+ import android.content.Context;
+@@ -29,17 +28,6 @@
+ 
+ public class MainActivity extends AppCompatActivity {
+ 
+-    // Instance state
+-    static final String STATE_MONITOR = "false";
+-    static final String STATE_LATITUDE = "LATITUDE";
+-    static final String STATE_LONGITUDE = "LONGITUDE";
+-    static final String STATE_SPEED = "SPEED";
+-    static final String STATE_CITY = "CITY";
+-    static final String STATE_PINCODE = "PINCODE";
+-    static final String STATE_STREET = "STREET";
+-    static final String STATE_MONITORING_TEXT = "MONITORING";
+-    static final String STATE_MONITORING_COLOR = "0";
+-
+     // Permissions static variable
+     static final int PERMISSION_LOCATION_CODE = 1;
+ 
+@@ -49,28 +37,28 @@
+     Notification note = new Notification();
+     Thread UIThread;
+ 
+-    //GPS Service
+-    GpsService gpsService;
++    //App Service
++
++    AppService appService;
++    protected boolean isAppServiceConnect = false;
+     private ServiceConnection mConnection = new ServiceConnection() {
+ 
+         @Override
+         public void onServiceConnected(ComponentName className,
+                                        IBinder service) {
+-            // We've bound to LocalService, cast the IBinder and get LocalService instance
+-            GpsService.LocalBinder binder = (GpsService.LocalBinder) service;
+-            gpsService = binder.getService();
+-            isServiceGPSConnect = true;
+-            Log.e("System", "GpsService is binded");
++            AppService.LocalBinder binder = (AppService.LocalBinder) service;
++            appService = binder.getService();
++            isAppServiceConnect = true;
++            Log.e("System", "AppService is binded to MainActivity");
+         }
+ 
+         @Override
+         public void onServiceDisconnected(ComponentName arg0) {
+-            isServiceGPSConnect = false;
+-            Log.e("System", "GpsService is unbinded");
++            isAppServiceConnect = false;
++            Log.e("System", "AppService is unbinded from MainActivity");
+         }
+     };
+-    protected boolean isServiceGPSConnect = false;
+-    Intent gpsServiceIntent;
++    Intent appServiceIntent;
+ 
+     //Interface
+     protected TextView latitudeText;
+@@ -136,8 +124,6 @@
+                         monitoring.setBackgroundResource(R.drawable.monitor_button_yellow);
+                         Log.e("System", "Monitor started");
+                         note.showNotificationMonitoring(getApplicationContext());
+-                        gpsService.startGPS();
+-                        updateUI();
+                         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                     } else {
+                         showMsg("Lokalizacja wyłączona.");
+@@ -146,7 +132,6 @@
+                 } else {
+                     monitoring.setBackgroundResource(R.drawable.monitor_button_green);
+                     Log.e("System", "Monitor stopped");
+-                    gpsService.stopGPS();
+                     note.hideNotification();
+                     getWindow().clearFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                     isMonitorOn = false;
+@@ -158,9 +143,9 @@
+ 
+     @Override
+     public void onStart() {
+-        gpsServiceIntent = new Intent(this, GpsService.class);
+-        bindService(gpsServiceIntent, mConnection, Context.BIND_AUTO_CREATE);
+-        startService(gpsServiceIntent);
++        appServiceIntent = new Intent(this, AppService.class);
++        bindService(appServiceIntent, mConnection, Context.BIND_AUTO_CREATE);
++        startService(appServiceIntent);
+         startUIThread();
+         super.onStart();
+     }
+@@ -168,6 +153,7 @@
+     @Override
+     public void onResume() {
+         Log.e("System", "Main activity resumed");
++        startUIThread();
+         checkPermissions();
+         locationAlert();
+         super.onResume();
+@@ -176,9 +162,9 @@
+     @Override
+     public void onStop() {
+         Log.e("System", "Main activity stopped");
+-        if (isServiceGPSConnect) {
++        if (isAppServiceConnect) {
+             unbindService(mConnection);
+-            isServiceGPSConnect = false;
++            isAppServiceConnect = false;
+         }
+         stopUIThread();
+         super.onStop();
+@@ -190,38 +176,7 @@
+         super.onDestroy();
+     }
+ 
+-    // Saving activity state
+-
+     @Override
+-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+-        if (savedInstanceState != null) {
+-            isMonitorOn = savedInstanceState.getBoolean(STATE_MONITOR);
+-            cityText.setText(savedInstanceState.getCharSequence(STATE_CITY));
+-            latitudeText.setText(savedInstanceState.getCharSequence(STATE_LATITUDE));
+-            longitudeText.setText(savedInstanceState.getCharSequence(STATE_LONGITUDE));
+-            pincodeText.setText(savedInstanceState.getCharSequence(STATE_PINCODE));
+-            speedText.setText(savedInstanceState.getCharSequence(STATE_SPEED));
+-            streetText.setText(savedInstanceState.getCharSequence(STATE_STREET));
+-            monitoring.setText(savedInstanceState.getCharSequence(STATE_MONITORING_TEXT));
+-        }
+-        super.onRestoreInstanceState(savedInstanceState);
+-    }
+-
+-    @Override
+-    protected void onSaveInstanceState(Bundle savedInstanceState) {
+-        savedInstanceState.putBoolean(STATE_MONITOR, isMonitorOn);
+-        savedInstanceState.putInt(STATE_MONITORING_COLOR, monitoring.getBackground().hashCode());
+-        savedInstanceState.putString(STATE_CITY, (String) cityText.getText());
+-        savedInstanceState.putString(STATE_LATITUDE, (String) latitudeText.getText());
+-        savedInstanceState.putString(STATE_LONGITUDE, (String) longitudeText.getText());
+-        savedInstanceState.putString(STATE_PINCODE, (String) pincodeText.getText());
+-        savedInstanceState.putString(STATE_SPEED, (String) speedText.getText());
+-        savedInstanceState.putString(STATE_STREET, (String) streetText.getText());
+-        savedInstanceState.putString(STATE_MONITORING_TEXT, (String) this.monitoring.getText());
+-        super.onSaveInstanceState(savedInstanceState);
+-    }
+-
+-    @Override
+     public boolean onCreateOptionsMenu(Menu menu) {
+         // Inflate the menu; this adds items to the action bar if it is present.
+         getMenuInflater().inflate(R.menu.menu_main, menu);
+@@ -249,7 +204,10 @@
+                 return true;
+ 
+             case R.id.action_exit:
+-                stopService(gpsServiceIntent);
++                note.hideNotification();
++                appService.stopGPS();
++                appService.onDestroy();
++                stopService(appServiceIntent);
+                 super.finish();
+                 Process.killProcess(Process.myPid());
+                 return true;
+@@ -324,6 +282,7 @@
+     }
+ 
+     // Updating UI
++
+     private void startUIThread() {
+         UIThread = new Thread() {
+             @Override
+@@ -352,12 +311,12 @@
+     }
+ 
+     public void updateUI() {
+-        latitudeText.setText(gpsService.getLatitude());
+-        longitudeText.setText(gpsService.getLongitude());
+-        satellites.setText(gpsService.getSatellitesInUse() + " / " + gpsService.getSatellitesInView());
+-        speedText.setText(gpsService.getSpeed());
+-        cityText.setText(gpsService.getCity());
+-        pincodeText.setText(gpsService.getPincode());
+-        streetText.setText(gpsService.getStreet());
++        latitudeText.setText(appService.getLatitude());
++        longitudeText.setText(appService.getLongitude());
++        satellites.setText(appService.getSatellitesInUse() + " / " + appService.getSatellitesInView());
++        speedText.setText(appService.getSpeed());
++        cityText.setText(appService.getCity());
++        pincodeText.setText(appService.getPincode());
++        streetText.setText(appService.getStreet());
+     }
+ }
+\ No newline at end of file
+Index: app/src/main/java/com/example/strzelcu/motor/gpsService.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/example/strzelcu/motor/gpsService.java	(revision 8e99f516ae8b2737e96a726eb69058cf29701ab8)
++++ app/src/main/java/com/example/strzelcu/motor/gpsService.java	(revision )
+@@ -1,6 +1,6 @@
+ package com.example.strzelcu.motor;
+ 
+-import android.Manifest;
++
+ import android.app.Service;
+ import android.content.Context;
+ import android.content.Intent;
+@@ -19,6 +19,8 @@
+ import android.util.Log;
+ import android.widget.Toast;
+ 
++import com.example.strzelcu.motor.gps.GpsInterface;
++
+ import java.util.List;
+ import java.util.Locale;
+ 
+@@ -26,7 +28,7 @@
+  * Created by Strzelcu on 2016-12-05.
+  */
+ 
+-public class GpsService extends Service {
++public class GpsService extends Service implements GpsInterface {
+ 
+     private final IBinder mBinder = new LocalBinder();
+     private static final String LOGSERVICE = "Location";
+@@ -39,13 +41,13 @@
+     private String SatellitesInView = "0";
+     private String SatellitesInUse = "0";
+     private GpsStatus mGpsStatus;
+-    LocationManager locationManager;
+-    LocationListener locationListener;
+-    Geocoder geocoder;
+-    protected GpsListener gpsListener = new GpsListener();
++    private LocationManager locationManager;
++    private LocationListener locationListener;
++    private Geocoder geocoder;
++    private GpsListener gpsListener = new GpsListener();
+ 
+     public void startGPS() {
+-        if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
++        if (ActivityCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+             showMsg("Brak uprawnień do usług lokalizacji");
+             return;
+         }
+@@ -55,19 +57,19 @@
+     }
+ 
+     public void stopGPS() {
+-        if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
++        if (ActivityCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+             showMsg("Brak uprawnień do usług lokalizacji");
+             return;
+         }
+         locationManager.removeUpdates(locationListener);
+     }
+ 
+-    class GpsListener implements GpsStatus.Listener {
++    private class GpsListener implements GpsStatus.Listener {
+         @Override
+         public void onGpsStatusChanged(int event) {
+             int iCountInView = 0;
+             int iCountInUse = 0;
+-            if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
++            if (ActivityCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                 showMsg("Brak uprawnień do usług lokalizacji");
+                 return;
+             }
+@@ -89,9 +91,6 @@
+                 SatellitesInView = String.valueOf(iCountInView);
+                 SatellitesInUse = String.valueOf(iCountInUse);
+             }
+-
+-
+-
+         }
+     }
+ 
+@@ -201,4 +200,4 @@
+         return pincode;
+     }
+ 
+-}
+\ No newline at end of file
++}

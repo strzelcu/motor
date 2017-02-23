@@ -83,13 +83,21 @@
     <string name="title_activity_maps">Map</string>
 
     <!-- Strings of layout labels -->
-    <string name="latitudeLabel">Szerokość geograficzna:</string>
-    <string name="longitudeLabel">Długość geograficzna:</string>
+    <string name="latitudeLabel">Szerokość geo:</string>
+    <string name="longitudeLabel">Długość geo:</string>
     <string name="numberOfSatellitesLabel">Ilość satelit:</string>
-    <string name="currentSpeedLabel">Aktualna prędkość:</string>
+    <string name="currentSpeedLabel">Prędkość:</string>
     <string name="cityLabel">Miasto:</string>
     <string name="postalCodeLabel">Kod pocztowy:</string>
     <string name="actionGps">Ustawienia GPS</string>
     <string name="streetLabel">Ulica:</string>
+    <string name="current_gps_position">Aktualna pozycja GPS</string>
+    <string name="monitoring_label">Monitorowanie jazdy</string>
+    <string name="main_button_text_start">Start</string>
+    <string name="main_button_text_stop">Stop</string>
+    <string name="not_available">Niedostępne</string>
+    <string name="searching">Szukam...</string>
+    <string name="using">"używa: "</string>
+    <string name="available">" dostępne: "</string>
 
 </resources>

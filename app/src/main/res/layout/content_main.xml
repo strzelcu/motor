@@ -1,153 +1,284 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/content_main"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="com.tomaszstrzelecki.motor.MainActivity"
     tools:showIn="@layout/activity_main">
 
-    <TextView
-        android:text="@string/latitudeLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true"
-        android:id="@+id/latitudeLabel" />
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/content_main"
+        android:layout_width="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        tools:context="com.tomaszstrzelecki.motor.MainActivity"
+        tools:showIn="@layout/activity_main"
+        android:orientation="vertical"
+        android:background="@android:color/darker_gray"
+        android:layout_height="wrap_content">
 
-    <TextView
-        android:text="@string/longitudeLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/longitudeLabel"
-        android:layout_below="@+id/latitudeLabel"
-        android:layout_alignParentStart="true"
-        android:layout_alignEnd="@+id/latitudeLabel" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-    <TextView
-        android:text="@string/numberOfSatellitesLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/numberOfSatellitesLabel"
-        android:layout_below="@+id/longitudeLabel"
-        android:layout_alignParentStart="true"
-        android:layout_alignEnd="@+id/latitudeLabel" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="4dp"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:background="@android:color/white"
+                android:text="@string/current_gps_position"
+                android:textColor="@android:color/black"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:textAlignment="center"/>
 
-    <TextView
-        android:text="@string/currentSpeedLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/numberOfSatellitesLabel"
-        android:layout_alignParentStart="true"
-        android:id="@+id/currentSpeedLabel"
-        android:layout_alignEnd="@+id/numberOfSatellitesLabel" />
+        </LinearLayout>
 
-    <TextView
-        android:text="@string/cityLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/currentSpeedLabel"
-        android:layout_alignParentStart="true"
-        android:id="@+id/cityLabel"
-        android:layout_alignEnd="@+id/currentSpeedLabel" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="4dp"
+            android:layout_marginEnd="4dp"
+            android:orientation="horizontal"
+            android:background="@android:color/white"
+            android:baselineAligned="false">
 
-    <TextView
-        android:text="@string/postalCodeLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/cityLabel"
-        android:layout_alignParentStart="true"
-        android:id="@+id/postalCodeLabel"
-        android:layout_alignEnd="@+id/cityLabel" />
+            <LinearLayout
+                android:layout_height="wrap_content"
+                android:layout_width="0dp"
+                android:orientation="vertical"
+                android:layout_weight="1">
 
-    <Button
-        android:layout_width="150pt"
-        android:layout_height="150pt"
-        android:id="@+id/mainButton"
-        tools:background="@drawable/monitor_button_green"
-        android:background="@drawable/monitor_button_green"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="32dp" />
+                <TextView
+                    android:text="@string/latitudeLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/latitudeLabel"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/black"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginStart="8dp"/>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:id="@+id/latitudeValue"
-        android:layout_alignParentEnd="true"
-        android:layout_toEndOf="@+id/latitudeLabel"
-        android:gravity="center" />
+                <TextView
+                    android:text="@string/longitudeLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/longitudeLabel"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/black"
+                    android:layout_marginTop="2dp"
+                    android:layout_marginStart="8dp"/>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/latitudeValue"
-        android:id="@+id/longitudeValue"
-        android:layout_alignParentEnd="true"
-        android:layout_toEndOf="@+id/latitudeLabel"
-        android:gravity="center" />
+                <TextView
+                    android:text="@string/numberOfSatellitesLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/numberOfSatellitesLabel"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/black"
+                    android:layout_marginTop="2dp"
+                    android:layout_marginStart="8dp"/>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/longitudeValue"
-        android:id="@+id/satellitesValue"
-        android:layout_alignParentEnd="true"
-        android:layout_toEndOf="@+id/longitudeLabel"
-        android:gravity="center" />
+                <TextView
+                    android:text="@string/currentSpeedLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/currentSpeedLabel"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/black"
+                    android:layout_marginTop="2dp"
+                    android:layout_marginStart="8dp"/>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/cityLabel"
-        android:id="@+id/speedValue"
-        android:layout_alignParentEnd="true"
-        android:layout_toEndOf="@+id/numberOfSatellitesLabel"
-        android:gravity="center" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/streetLabel"
+                    android:text="@string/streetLabel"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/black"
+                    android:layout_marginTop="2dp"
+                    android:layout_marginStart="8dp"/>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/streetLabel"
-        android:layout_below="@+id/postalCodeLabel"
-        android:layout_alignParentStart="true"
-        android:text="@string/streetLabel"
-        android:layout_toStartOf="@+id/pincodeValue" />
+                <TextView
+                    android:text="@string/postalCodeLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/postalCodeLabel"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/black"
+                    android:layout_marginTop="2dp"
+                    android:layout_marginStart="8dp"/>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/cityValue"
-        android:layout_alignBaseline="@+id/cityLabel"
-        android:layout_alignBottom="@+id/cityLabel"
-        android:layout_alignParentEnd="true"
-        android:layout_toEndOf="@+id/currentSpeedLabel"
-        android:gravity="center" />
+                <TextView
+                    android:text="@string/cityLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/cityLabel"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/black"
+                    android:layout_marginTop="2dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginBottom="8dp"/>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/pincodeValue"
-        android:layout_alignBaseline="@+id/postalCodeLabel"
-        android:layout_alignBottom="@+id/postalCodeLabel"
-        android:layout_alignParentEnd="true"
-        android:layout_toEndOf="@+id/cityLabel"
-        android:gravity="center" />
+            </LinearLayout>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/pincodeValue"
-        android:id="@+id/streetValue"
-        android:layout_alignParentEnd="true"
-        android:layout_toEndOf="@+id/postalCodeLabel"
-        android:gravity="center" />
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="2"
+                android:orientation="vertical">
 
-</RelativeLayout>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/latitudeValue"
+                    android:textSize="14sp"
+                    android:maxLength="15"
+                    android:textColor="@android:color/black"
+                    android:layout_marginTop="8dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/longitudeValue"
+                    android:textSize="14sp"
+                    android:maxLength="15"
+                    android:textColor="@android:color/black"
+                    android:layout_marginTop="2dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/satellitesValue"
+                    android:textSize="14sp"
+                    android:textColor="@android:color/black"
+                    android:layout_marginTop="2dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/speedValue"
+                    android:textSize="14sp"
+                    android:textColor="@android:color/black"
+                    android:layout_marginTop="2dp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/streetValue"
+                    android:textSize="14sp"
+                    android:textColor="@android:color/black"
+                    android:layout_marginTop="2dp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/pincodeValue"
+                    android:textSize="14sp"
+                    android:textColor="@android:color/black"
+                    android:layout_marginTop="2dp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/cityValue"
+                    android:textSize="14sp"
+                    android:textColor="@android:color/black"
+                    android:layout_marginTop="2dp"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:background="@android:color/white"
+                android:text="@string/monitoring_label"
+                android:textColor="@android:color/black"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:textAlignment="center"/>
+
+        </LinearLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:orientation="horizontal"
+            android:layout_weight="1"
+            android:layout_marginTop="4dp"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="4dp"
+            android:layout_marginBottom="4dp"
+            android:background="@android:color/white">
+
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true">
+
+                <Button
+                    android:layout_width="300dp"
+                    android:layout_height="300dp"
+                    android:id="@+id/mainButton"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginRight="8dp"
+                    android:layout_marginBottom="8dp"
+                    tools:background="@drawable/monitor_button_green"
+                    android:background="@drawable/monitor_button_green" />
+
+            </FrameLayout>
+
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/main_button_text_start"
+                    android:layout_gravity="top|center"
+                    android:textAllCaps="true"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/black"
+                    android:textSize="24sp"
+                    android:id="@+id/main_button_text"/>
+
+                <ImageView
+                    android:contentDescription="@string/main_button_text_start"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_play_arrow_black_48dp"
+                    android:id="@+id/main_button_image_view"
+                    android:layout_marginTop="12dp"/>
+
+            </FrameLayout>
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+</ScrollView>

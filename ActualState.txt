@@ -1,0 +1,52 @@
+// Tekst 02.12.2016
+
+Brak wiedzy na temat programowania zmusił mnie do przeczytania i przerobienia paru książek.
+
+Pierwszą książką jest Rusz Głową - Wzorce Projektowe. Wykonałem wszystkie niezbędne zadania. Znam już wzorce projektowe i wiem jak zastosować je w praktyce na poziomie studenckim.
+
+Drugą książką jest ThinkingInJava, która również bardzo mi pomogła. Dzięki niej rozumię składnię języka jak również aspekty działania.
+
+
+
+// Mail 19.12.2016
+
+Potrafię już:
+
+* Obsłużyć pracę intent w trybie serwisu oraz podpiąć ją pod activity
+* Obsłużyć odbiornik GPS z aktualną lokalizacją, prędkością, ilością satelit i adresem
+* Rozumiem podstawy Javy i myślę, że zrobiłem ogromne postępy względem mojej wiedzy przed rozpoczęciem prac nad aplikacją. Rozumiem wiele aspektów kodu i potrafię realizować bieżące zadania bez większych problemów (oczywiście z pomocą StackOverflow). W chwilach odpoczynku od aplikacji opracowuję książkę ThinkingInJava.
+* Rozumiem cykl życia activity jak również cykl życia service
+* Potrafię wykonać UI aplikacji i je obsłużyć
+* Znam podstawowe wzorce projektowe jak również wzorzec złożony MVC
+* Rozumiem strukturę plików aplikacji oraz ich budowę
+* Potrafię korzystać z GITa i jest mi on bardzo pomocny
+
+Aktualnie mam parę problemów strukturalnych dotyczących aplikacji. Zanim rozpocznę oprogramowywanie zapisu tras chciałbym rozwiązać najpierw problemy strukturalne, tak aby nie zagmatwać się w kodze.
+
+Kod aplikacji można zobaczyć w GitHubie: https://github.com/strzelcu/MotoR
+Jeśli zajdzie potrzeba podpięcia się pod GITa, udostępnię wszystko co będzie potrzebne.
+
+Moim aktualnym problemem jest stan aktywności. MainActivity przed wywołaniem Destroy lub Pause działa bez zarzutów. W MainActivity utworzyłem wątek aktualizujący UI podczas jazdy do testów (Czy to można nazwać testem jednostkowym?). Jednakże po przejściu w inne aktywności aplikacji tj. ustawienia, czy trasy, MainActivity tworzy się na nowo zamiast otworzyć np aktualny stan przycisku monitoringu i textview z UI. 
+
+Zastanawiałem się nad wykorzystaniem wzorca stan do rozwiązania tego problemu. Wyróżniłbym 4 stany: Przygotowany, Chroniony, PrzedAlarmowy, Alarmowy gdzie:
+
+*Przygotowany - stan w którym aplikacja korzysta z aktualnie pobranej lokalizacji, wyświetla ją w UI ale nie monitoruje jazdy
+
+*Chroniony - stan w którym aplikacja monitoruje jazdę jednocześnie zapisując aktualnie pokonywaną trasę oraz jej statystyki (prędkość, przebyty dystans)
+
+*PrzedAlarmowy - stan w którym telefon wibruje przez definiowany w ustawieniach czas po wykryciu ewentualnej kolizji informując kierowcę o wykryciu kolizji i upewniając się, że motocyklista nie jest w stanie dotknąć telefonu. Po naciśnięciu przycisków głośności lub zmiany pozycji GPS np o 2 km w przeciągu zdefiniowanego czasu aplikacja przeszłaby spowrotem w stan Chroniony.
+
+*Alarmowy - stan w którym aplikacja wysyła do wcześniej zdefiniowanych numerów aktualną pozycję GPS z prośbą o pomoc.
+
+Dodatkowo zastanawiałem się nad zastosowaniem wzorca MVC do obsłużenia aktualnego stanu aktywności tj. utworzenia service Controller, który zarządzałby aktualnym stanem aplikacji i UI MainActivity oraz do którego byłyby podpięte pozostałe serwisy (GPSService - obsługującego lokalizację, SMSService - zajmujący się wysyłaniem SMSów alarmowych (lub testowych), AccGyrService - service analizujący pomiary żyroskopu i akcelerometru). Na dobrą sprawę MainActivity jest potrzebne tylko do kliknięcia przycisku "Monitoruj" po czym telefon jest wkładany do kieszeni kurtki lub spodni. RoutesActivity będzie korzystać z zapisanych do pliku tras więc może po każdym uruchomieniu tworzyć się na nowo i nie musi być podpięte pod serwisy. Jeśli chodzi o SettingsActivity, muszę jakoś przekazywać parametry ustawień do serwisów aby pracowały wedle preferencji.
+
+Bardzo proszę o wskazówki w sprawie dalszych prac i ewentualną krytykę obecnie wykonanej pracy. Oczekuję wymagającej opinii i wskazówek ;-) Poświęcę na to tyle czasu ile będzie potrzeba. Chciałbym, żeby aplikacja funkcjonowała odpowiednio, a nie była napisana tylko pod obronę.
+
+Chciałbym dowiedzieć się, czy mój tok myślenia względem funkcjonowania aplikacji jest odpowiedni, a jeśli tak to czy mógłbym uzyskać parę wskazówek dotyczących dalszych prac? Jestem również otwarty na rozmowę na TeamViewer, Skype, lub spotkania się osobiście jeśli to będzie potrzebne.
+
+// 18.02.2017 Tekst
+
+Na początku pisania aplikacji napotkałem kilka problemów. Pierwszym z nich było zbytnie przeciążenie MainActivity. Udało mi się rozwiązać ten problem tworząc AppService.java. Dzięki serwisowe aplikacji działającemu w tle, sama aktywność widokowa wygląda świetnie, nie zacina się. Oddzieliłem dzięki temu część aplikacji pracującą nad obliczeniami i część aplikacji odpowiedzialną za wyświetlanie danych na ekranie.
+
+Teraz potrzebny jest sposób na zapisanie trasy. Muszę napisać własny recorder trasy, zapisujący punkty geograficzne w postaci pliku KML. To jest następny punkt.
+
