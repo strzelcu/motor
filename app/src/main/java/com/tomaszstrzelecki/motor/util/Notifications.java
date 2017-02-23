@@ -12,7 +12,7 @@ import com.tomaszstrzelecki.motor.R;
 
 public class Notifications {
 
-    Context context;
+    private Context context;
     private NotificationCompat.Builder mBuilder;
     private android.app.NotificationManager mNotificationManager;
     private int id = 1;
