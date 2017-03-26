@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.database.sqlite.SQLiteDatabase;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -27,6 +28,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.tomaszstrzelecki.motor.dbhelper.DatabaseHelper;
+import com.tomaszstrzelecki.motor.dbhelper.DatabaseProvider;
 import com.tomaszstrzelecki.motor.util.Notifications;
 
 import static com.tomaszstrzelecki.motor.AppService.isMonitorOn;
@@ -56,7 +59,6 @@ public class MainActivity extends AppCompatActivity {
             appService = binder.getService();
             isAppServiceConnect = true;
             updateUI();
-            appService.restartGPS();
             Log.e("System", "AppService is binded to MainActivity");
         }
 
@@ -138,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
                         monitoring.setBackgroundResource(R.drawable.monitor_button_yellow);
                         monitoringImage.setImageResource(R.drawable.ic_stop_black_48dp);
                         monitoringTextView.setText(R.string.main_button_text_stop);
-                        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                        //getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
                         appService.startMonitoring();
                     } else {
                         note.showToastMsg("Lokalizacja wyłączona.");
@@ -148,7 +150,7 @@ public class MainActivity extends AppCompatActivity {
                     monitoring.setBackgroundResource(R.drawable.monitor_button_green);
                     monitoringImage.setImageResource(R.drawable.ic_play_arrow_black_48dp);
                     monitoringTextView.setText(R.string.main_button_text_start);
-                    getWindow().clearFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                    //getWindow().clearFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
                     appService.stopMonitoring();
                 }
             }
@@ -180,9 +182,6 @@ public class MainActivity extends AppCompatActivity {
             unbindService(mConnection);
             isAppServiceConnect = false;
         }
-        if(!isMonitorOn) {
-            appService.stopGPS();
-        }
         stopUIThread();
         super.onStop();
         Log.e("System", "Main activity stopped");
@@ -208,7 +207,7 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()) {
 
             case R.id.action_routes:
-                i = new Intent(this, RoutesActivity.class);
+                i = new Intent(this, TracksActivity.class);
                 this.startActivity(i);
                 return true;
 
@@ -218,6 +217,7 @@ public class MainActivity extends AppCompatActivity {
                 return true;
 
             case R.id.action_exit:
+                deleteAllRecords();
                 appService.onDestroy();
                 stopService(appServiceIntent);
                 super.finish();
@@ -313,31 +313,42 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void updateUI() {
-        try {
-            latitudeText.setText(appService.getLatitude());
-            longitudeText.setText(appService.getLongitude());
-            satellites.setText(getString(R.string.using) + appService.getSatellitesInUse()
-                    + " | "
-                    +  getString(R.string.available) +
-                    appService.getSatellitesInView());
-            speedText.setText(appService.getSpeed());
-            if(appService.getCity() == null && appService.getPincode() == null && appService.getStreet() == null) {
+
+        if(isMonitorOn) {
+            try {
+                latitudeText.setText(appService.getLatitude());
+                longitudeText.setText(appService.getLongitude());
+                satellites.setText(getString(R.string.using) + appService.getSatellitesInUse()
+                        + " | "
+                        + getString(R.string.available) +
+                        appService.getSatellitesInView());
+                speedText.setText(appService.getSpeed());
+                if (appService.getCity() == null && appService.getPincode() == null && appService.getStreet() == null) {
+                    cityText.setText(R.string.not_available);
+                    pincodeText.setText(R.string.not_available);
+                    streetText.setText(R.string.not_available);
+                } else {
+                    cityText.setText(appService.getCity());
+                    pincodeText.setText(appService.getPincode());
+                    streetText.setText(appService.getStreet());
+                }
+            } catch (Exception e) {
+                latitudeText.setText(R.string.searching);
+                longitudeText.setText(R.string.searching);
+                satellites.setText(getString(R.string.using) + " 0 / 0 " + getString(R.string.available));
+                speedText.setText("0");
                 cityText.setText(R.string.not_available);
                 pincodeText.setText(R.string.not_available);
                 streetText.setText(R.string.not_available);
-            } else {
-                cityText.setText(appService.getCity());
-                pincodeText.setText(appService.getPincode());
-                streetText.setText(appService.getStreet());
             }
-        } catch (Exception e) {
-            latitudeText.setText(R.string.searching);
-            longitudeText.setText(R.string.searching);
-            satellites.setText(getString(R.string.using) + " 0 / 0 " + getString(R.string.available));
-            speedText.setText("0");
-            cityText.setText(R.string.not_available);
-            pincodeText.setText(R.string.not_available);
-            streetText.setText(R.string.not_available);
+        } else {
+            latitudeText.setText(null);
+            longitudeText.setText(null);
+            satellites.setText(null);
+            speedText.setText(null);
+            cityText.setText(null);
+            pincodeText.setText(null);
+            streetText.setText(null);
         }
     }
 
@@ -351,5 +362,16 @@ public class MainActivity extends AppCompatActivity {
             monitoringTextView.setText(R.string.main_button_text_stop);
             monitoringImage.setImageResource(R.drawable.ic_stop_black_48dp);
         }
+    }
+
+    // TO REMOVE AFTER TESTS
+
+    public void deleteAllRecords() {
+        DatabaseHelper dbh = new DatabaseHelper(this);
+        SQLiteDatabase db = dbh.getWritableDatabase();
+        DatabaseProvider dbp = new DatabaseProvider(db);
+        dbp.deleteAllRecords();
+        db.close();
+        dbh.close();
     }
 }

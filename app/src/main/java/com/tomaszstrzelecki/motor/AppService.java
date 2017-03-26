@@ -5,11 +5,16 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
-import com.tomaszstrzelecki.motor.interfaces.GpsInterface;
+import com.tomaszstrzelecki.motor.dbhelper.DatabaseHelper;
+import com.tomaszstrzelecki.motor.dbhelper.DatabaseProvider;
+import com.tomaszstrzelecki.motor.gpshandle.GpsInterface;
+import com.tomaszstrzelecki.motor.gpshandle.GpsService;
 import com.tomaszstrzelecki.motor.util.Notifications;
 
 public class AppService extends Service implements GpsInterface {
@@ -19,7 +24,6 @@ public class AppService extends Service implements GpsInterface {
     // Declarations
     private final IBinder mBinder = new AppService.LocalBinder();
     private Notifications note = new Notifications(this);
-
 
     // Service binder methods
 
@@ -45,7 +49,6 @@ public class AppService extends Service implements GpsInterface {
             gpsService = binder.getService();
             isServiceGPSConnect = true;
             Log.e("System", "GpsService is binded to AppService");
-            startGPS();
         }
 
         @Override
@@ -59,12 +62,14 @@ public class AppService extends Service implements GpsInterface {
 
     public void startMonitoring() {
         isMonitorOn = true;
+        startGPS();
         Log.e("System", "Monitor started");
         note.showNotificationMonitoring();
     }
 
     public void stopMonitoring() {
         isMonitorOn = false;
+        stopGPS();
         Log.e("System", "Monitor stopped");
         note.hideNotification();
     }
@@ -82,9 +87,8 @@ public class AppService extends Service implements GpsInterface {
 
     @Override
     public void onDestroy() {
-        gpsService.stopGPS();
+        Log.e("System", "AppService is destroyed");
         stopService(gpsServiceIntent);
-        if(isMonitorOn) stopMonitoring();
         super.onDestroy();
     }
 
@@ -98,12 +102,6 @@ public class AppService extends Service implements GpsInterface {
     @Override
     public void stopGPS() {
         gpsService.stopGPS();
-    }
-
-    public void restartGPS() {
-        if(isServiceGPSConnect) {
-            startGPS();
-        }
     }
 
     @Override

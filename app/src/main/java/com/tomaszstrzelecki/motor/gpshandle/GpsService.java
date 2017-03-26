@@ -1,4 +1,4 @@
-package com.tomaszstrzelecki.motor;
+package com.tomaszstrzelecki.motor.gpshandle;
 
 import android.Manifest;
 import android.app.Service;
@@ -15,14 +15,20 @@ import android.location.LocationManager;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.Vibrator;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.tomaszstrzelecki.motor.interfaces.GpsInterface;
+import com.tomaszstrzelecki.motor.track.TrackWrite;
+import com.tomaszstrzelecki.motor.util.Notifications;
 
 import java.util.List;
 import java.util.Locale;
+
+import static android.location.LocationProvider.AVAILABLE;
+import static android.location.LocationProvider.OUT_OF_SERVICE;
+import static android.location.LocationProvider.TEMPORARILY_UNAVAILABLE;
 
 public class GpsService extends Service implements GpsInterface{
 
@@ -39,15 +45,17 @@ public class GpsService extends Service implements GpsInterface{
     LocationManager locationManager;
     LocationListener locationListener;
     protected GpsListener gpsListener = new GpsListener();
+    TrackWrite track;
+    Vibrator v;
 
     public void startGPS() {
         if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             showMsg("Brak uprawnień do usług lokalizacji");
             return;
         }
+        track = new TrackWrite(this);
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 30, 2, locationListener);
         locationManager.addGpsStatusListener(gpsListener);
-
     }
 
     public void stopGPS() {
@@ -56,6 +64,7 @@ public class GpsService extends Service implements GpsInterface{
             return;
         }
         locationManager.removeUpdates(locationListener);
+        track.saveToDatabase();
     }
 
     class GpsListener implements GpsStatus.Listener {
@@ -78,10 +87,25 @@ public class GpsService extends Service implements GpsInterface{
                 }
             }
 
+            switch (event) {
+                case GpsStatus.GPS_EVENT_STARTED:
+                    showMsg("Szukanie lokalizacji");
+                    break;
+                case GpsStatus.GPS_EVENT_FIRST_FIX:
+                    showMsg("Znaleziono lokalizację. Schowaj urządzenie!");
+                    vibrate(1000);
+                    break;
+                default:
+            }
+
             SatellitesInView = String.valueOf(iCountInView);
             SatellitesInUse = String.valueOf(iCountInUse);
 
         }
+    }
+
+    public void onStartCommand() {
+
     }
 
     @Override
@@ -90,7 +114,7 @@ public class GpsService extends Service implements GpsInterface{
     }
 
     public class LocalBinder extends Binder {
-        GpsService getService() {
+        public GpsService getService() {
             locationListener = new LocationListener() {
                 @Override
                 public void onLocationChanged(Location location) {
@@ -99,11 +123,13 @@ public class GpsService extends Service implements GpsInterface{
                     latitude = location.getLatitude();
                     longitude = location.getLongitude();
                     speed = location.getSpeed();
+                    track.addWaypoint(latitude, longitude);
                     updateAddress(location.getLatitude(),location.getLongitude());
                 }
 
                 @Override
                 public void onStatusChanged(String provider, int status, Bundle extras) {
+
                 }
 
                 @Override
@@ -150,9 +176,16 @@ public class GpsService extends Service implements GpsInterface{
 
     }
 
+    // Help Methods
+
     private void showMsg(String msg) {
         Toast toast = Toast.makeText(this, msg, Toast.LENGTH_LONG);
         toast.show();
+    }
+
+    public void vibrate(int miliseconds) {
+        v = (Vibrator) this.getSystemService(Context.VIBRATOR_SERVICE);
+        v.vibrate(miliseconds);
     }
 
     // Public getters

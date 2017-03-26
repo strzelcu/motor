@@ -1,4 +1,4 @@
-package com.tomaszstrzelecki.motor.interfaces;
+package com.tomaszstrzelecki.motor.gpshandle;
 
 public interface GpsInterface {
     void startGPS();
