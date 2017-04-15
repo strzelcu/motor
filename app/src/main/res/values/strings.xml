@@ -80,7 +80,7 @@
     <string name="large_text">
         "Material is the metaphor.\n\n"
     </string>
-    <string name="title_activity_maps">Map</string>
+    <string name="title_activity_maps">Trasa na mapie</string>
 
     <!-- Strings of layout labels -->
     <string name="latitudeLabel">Szerokość geo:</string>
@@ -99,5 +99,6 @@
     <string name="searching">Szukam...</string>
     <string name="using">"używa: "</string>
     <string name="available">" dostępne: "</string>
+    <string name="delete_all_tracks">Usuń wszystkie trasy</string>
 
 </resources>

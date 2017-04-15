@@ -1,5 +1,7 @@
 package com.tomaszstrzelecki.motor.track;
 
+import com.google.android.gms.maps.model.LatLng;
+
 public class Waypoint {
 
     private double latitude;
@@ -17,4 +19,6 @@ public class Waypoint {
     public double getLongitude() {
         return longitude;
     }
+
+    public LatLng getLatLng() { return new LatLng(latitude, longitude); }
 }

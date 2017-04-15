@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
@@ -20,10 +22,12 @@ import com.tomaszstrzelecki.motor.util.Notifications;
 public class AppService extends Service implements GpsInterface {
 
     public static boolean isMonitorOn = false;
+    public static boolean isNetworkOn = false;
 
     // Declarations
     private final IBinder mBinder = new AppService.LocalBinder();
-    private Notifications note = new Notifications(this);
+    ConnectivityManager cm;
+    Thread systemCheckThread;
 
     // Service binder methods
 
@@ -64,14 +68,12 @@ public class AppService extends Service implements GpsInterface {
         isMonitorOn = true;
         startGPS();
         Log.e("System", "Monitor started");
-        note.showNotificationMonitoring();
     }
 
     public void stopMonitoring() {
         isMonitorOn = false;
         stopGPS();
         Log.e("System", "Monitor stopped");
-        note.hideNotification();
     }
 
     // Service lifecycle
@@ -81,6 +83,8 @@ public class AppService extends Service implements GpsInterface {
         Log.e("System", "AppService is created");
         gpsServiceIntent = new Intent(this, GpsService.class);
         bindService(gpsServiceIntent, mConnection, Context.BIND_AUTO_CREATE);
+        cm = (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
+        startSystemCheckThread();
         startService(gpsServiceIntent);
         super.onCreate();
     }
@@ -89,6 +93,7 @@ public class AppService extends Service implements GpsInterface {
     public void onDestroy() {
         Log.e("System", "AppService is destroyed");
         stopService(gpsServiceIntent);
+        stopSystemCheckThread();
         super.onDestroy();
     }
 
@@ -105,12 +110,12 @@ public class AppService extends Service implements GpsInterface {
     }
 
     @Override
-    public String getLatitude() {
+    public Double getLatitude() {
         return gpsService.getLatitude();
     }
 
     @Override
-    public String getLongitude() {
+    public Double getLongitude() {
         return gpsService.getLongitude();
     }
 
@@ -129,18 +134,29 @@ public class AppService extends Service implements GpsInterface {
         return gpsService.getSatellitesInUse();
     }
 
-    @Override
-    public String getStreet() {
-        return gpsService.getStreet();
+    // SystemCheckThread
+
+    private void startSystemCheckThread() {
+        systemCheckThread = new Thread() {
+            @Override
+            public void run() {
+                try {
+                    while (!isInterrupted()) {
+                        Thread.sleep(2000);
+                        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+                        isNetworkOn = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+                        }
+                } catch (InterruptedException ignored) {
+                }
+            }
+        };
+        Log.e("System", "System check thread starts");
+        systemCheckThread.start();
     }
 
-    @Override
-    public String getCity() {
-        return gpsService.getCity();
+    private  void stopSystemCheckThread() {
+        systemCheckThread.interrupt();
+        Log.e("System", "System check thread stops");
     }
 
-    @Override
-    public String getPincode() {
-        return gpsService.getPincode();
-    }
 }

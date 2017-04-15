@@ -12,7 +12,7 @@ import com.tomaszstrzelecki.motor.R;
 
 public class Notifications {
 
-    Context context;
+    private Context context;
     private NotificationCompat.Builder mBuilder;
     private android.app.NotificationManager mNotificationManager;
     private int id = 1;
@@ -31,7 +31,7 @@ public class Notifications {
         mBuilder =
                 (NotificationCompat.Builder) new NotificationCompat.Builder(context)
                         .setSmallIcon(R.mipmap.ic_launcher)
-                        .setTicker("Rozpoczynam monitorowanie")
+                        .setTicker("Monitoruję jazdę.")
                         .setContentTitle("MotoR")
                         .setContentText("Monitoruję jazdę.")
                         .setPriority(NotificationCompat.PRIORITY_HIGH)

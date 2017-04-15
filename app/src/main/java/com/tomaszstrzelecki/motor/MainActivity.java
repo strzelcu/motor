@@ -8,7 +8,11 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Process;
@@ -32,7 +36,11 @@ import com.tomaszstrzelecki.motor.dbhelper.DatabaseHelper;
 import com.tomaszstrzelecki.motor.dbhelper.DatabaseProvider;
 import com.tomaszstrzelecki.motor.util.Notifications;
 
+import java.util.List;
+import java.util.Locale;
+
 import static com.tomaszstrzelecki.motor.AppService.isMonitorOn;
+import static com.tomaszstrzelecki.motor.AppService.isNetworkOn;
 import static com.tomaszstrzelecki.motor.R.mipmap.ic_launcher;
 
 public class MainActivity extends AppCompatActivity {
@@ -44,6 +52,9 @@ public class MainActivity extends AppCompatActivity {
 
     Notifications note = new Notifications(this);
     Thread UIThread;
+    private String city;
+    private String pincode;
+    private String street;
 
     //App Service
     AppService appService;
@@ -59,13 +70,13 @@ public class MainActivity extends AppCompatActivity {
             appService = binder.getService();
             isAppServiceConnect = true;
             updateUI();
-            Log.e("System", "AppService is binded to MainActivity");
+            Log.i("MainActivity", "AppService is binded to MainActivity");
         }
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
             isAppServiceConnect = false;
-            Log.e("System", "AppService is unbinded from MainActivity");
+            Log.i("MainActivity", "AppService is unbinded from MainActivity");
         }
     };
 
@@ -92,9 +103,9 @@ public class MainActivity extends AppCompatActivity {
         try {
             getSupportActionBar().setLogo(ic_launcher);
         } catch (NullPointerException e) {
-            Log.e("System", "Can't set logo in the action bar. " + e.getMessage());
+            Log.e("MainActivity", "Can't set logo in the action bar. " + e.getMessage());
         }
-        Log.e("System", "Main activity created");
+        Log.i("MainActivity", "Main activity created");
 
         //Graphics objects
         monitoring = (Button) findViewById(R.id.mainButton);
@@ -140,7 +151,6 @@ public class MainActivity extends AppCompatActivity {
                         monitoring.setBackgroundResource(R.drawable.monitor_button_yellow);
                         monitoringImage.setImageResource(R.drawable.ic_stop_black_48dp);
                         monitoringTextView.setText(R.string.main_button_text_stop);
-                        //getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
                         appService.startMonitoring();
                     } else {
                         note.showToastMsg("Lokalizacja wyłączona.");
@@ -150,7 +160,6 @@ public class MainActivity extends AppCompatActivity {
                     monitoring.setBackgroundResource(R.drawable.monitor_button_green);
                     monitoringImage.setImageResource(R.drawable.ic_play_arrow_black_48dp);
                     monitoringTextView.setText(R.string.main_button_text_start);
-                    //getWindow().clearFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
                     appService.stopMonitoring();
                 }
             }
@@ -169,7 +178,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onResume() {
-        Log.e("System", "Main activity resumed");
+        Log.i("MainActivity", "Main activity resumed");
         checkPermissions();
         refreshMonitoringButton();
         locationAlert();
@@ -184,12 +193,12 @@ public class MainActivity extends AppCompatActivity {
         }
         stopUIThread();
         super.onStop();
-        Log.e("System", "Main activity stopped");
+        Log.i("MainActivity", "Main activity stopped");
     }
 
     @Override
     public void onDestroy() {
-        Log.e("System", "Main activity destroyed");
+        Log.i("MainActivity", "Main activity destroyed");
         super.onDestroy();
     }
 
@@ -217,7 +226,7 @@ public class MainActivity extends AppCompatActivity {
                 return true;
 
             case R.id.action_exit:
-                deleteAllRecords();
+                //deleteAllRecords();
                 appService.onDestroy();
                 stopService(appServiceIntent);
                 super.finish();
@@ -303,34 +312,32 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         };
-        Log.e("System", "UI Thread starts");
+        Log.i("MainActivity", "UI Thread starts");
         UIThread.start();
     }
 
     private  void stopUIThread() {
         UIThread.interrupt();
-        Log.e("System", "UI Thread stops");
+        Log.i("MainActivity", "UI Thread stops");
     }
 
     public void updateUI() {
 
         if(isMonitorOn) {
             try {
-                latitudeText.setText(appService.getLatitude());
-                longitudeText.setText(appService.getLongitude());
+                latitudeText.setText("" + appService.getLatitude());
+                longitudeText.setText("" + appService.getLongitude());
                 satellites.setText(getString(R.string.using) + appService.getSatellitesInUse()
                         + " | "
                         + getString(R.string.available) +
                         appService.getSatellitesInView());
                 speedText.setText(appService.getSpeed());
-                if (appService.getCity() == null && appService.getPincode() == null && appService.getStreet() == null) {
+                if (isNetworkOn) {
+                    updateAddress(appService.getLatitude(), appService.getLongitude());
+                } else {
                     cityText.setText(R.string.not_available);
                     pincodeText.setText(R.string.not_available);
                     streetText.setText(R.string.not_available);
-                } else {
-                    cityText.setText(appService.getCity());
-                    pincodeText.setText(appService.getPincode());
-                    streetText.setText(appService.getStreet());
                 }
             } catch (Exception e) {
                 latitudeText.setText(R.string.searching);
@@ -362,6 +369,27 @@ public class MainActivity extends AppCompatActivity {
             monitoringTextView.setText(R.string.main_button_text_stop);
             monitoringImage.setImageResource(R.drawable.ic_stop_black_48dp);
         }
+    }
+
+    private void updateAddress(double latitude, double longitude)
+    {
+        try
+        {
+            Geocoder gcd = new Geocoder(this, Locale.getDefault());
+            List<Address> addresses = gcd.getFromLocation(latitude, longitude, 1);
+            if (addresses.size() > 0)
+            {
+                cityText.setText(addresses.get(0).getLocality());
+                pincodeText.setText(addresses.get(0).getPostalCode());
+                streetText.setText(addresses.get(0).getAddressLine(0));
+            }
+        }
+
+        catch (Exception e)
+        {
+            Log.e("MainActivity","" + e);
+        }
+
     }
 
     // TO REMOVE AFTER TESTS

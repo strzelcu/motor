@@ -26,6 +26,7 @@ import com.tomaszstrzelecki.motor.util.Notifications;
 import java.util.List;
 import java.util.Locale;
 
+import static android.R.attr.value;
 import static android.location.LocationProvider.AVAILABLE;
 import static android.location.LocationProvider.OUT_OF_SERVICE;
 import static android.location.LocationProvider.TEMPORARILY_UNAVAILABLE;
@@ -36,15 +37,13 @@ public class GpsService extends Service implements GpsInterface{
     private double latitude;
     private double longitude;
     private double speed;
-    private String city;
-    private String pincode;
-    private String street;
     private String SatellitesInView = "0";
     private String SatellitesInUse = "0";
     private GpsStatus mGpsStatus;
     LocationManager locationManager;
     LocationListener locationListener;
     protected GpsListener gpsListener = new GpsListener();
+    private Notifications note = new Notifications(this);
     TrackWrite track;
     Vibrator v;
 
@@ -54,6 +53,7 @@ public class GpsService extends Service implements GpsInterface{
             return;
         }
         track = new TrackWrite(this);
+        note.showNotificationMonitoring();
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 30, 2, locationListener);
         locationManager.addGpsStatusListener(gpsListener);
     }
@@ -64,6 +64,7 @@ public class GpsService extends Service implements GpsInterface{
             return;
         }
         locationManager.removeUpdates(locationListener);
+        note.hideNotification();
         track.saveToDatabase();
     }
 
@@ -124,7 +125,7 @@ public class GpsService extends Service implements GpsInterface{
                     longitude = location.getLongitude();
                     speed = location.getSpeed();
                     track.addWaypoint(latitude, longitude);
-                    updateAddress(location.getLatitude(),location.getLongitude());
+                    track.setAveregeSpeed((int) (speed*3.6));
                 }
 
                 @Override
@@ -148,34 +149,6 @@ public class GpsService extends Service implements GpsInterface{
         }
     }
 
-    // Help methods
-
-    private void updateAddress(double latitude, double longitude)
-    {
-        try
-        {
-            Geocoder gcd = new Geocoder(this, Locale.getDefault());
-            List<Address> addresses = gcd.getFromLocation(latitude, longitude, 1);
-            if (addresses.size() > 0)
-            {
-
-                city = addresses.get(0).getLocality();
-                pincode = addresses.get(0).getPostalCode();
-                street = addresses.get(0).getAddressLine(0);
-
-            }
-        }
-
-        catch (Exception e)
-        {
-            city = null;
-            pincode = null;
-            street = null;
-            Log.e("System","No network to get adresses.");
-        }
-
-    }
-
     // Help Methods
 
     private void showMsg(String msg) {
@@ -183,19 +156,27 @@ public class GpsService extends Service implements GpsInterface{
         toast.show();
     }
 
-    public void vibrate(int miliseconds) {
+    private void vibrate(int miliseconds) {
         v = (Vibrator) this.getSystemService(Context.VIBRATOR_SERVICE);
         v.vibrate(miliseconds);
     }
 
-    // Public getters
-
-    public String getLatitude() {
-        return Double.toString(latitude);
+    private int getDistanceTo(double startLatitude, double startLongitude, Location endLocation) {
+        Location startLocation = new Location("START");
+        startLocation.setLatitude(startLatitude);
+        startLocation.setLongitude(startLongitude);
+        float distance = startLocation.distanceTo(endLocation);
+        return Math.round(distance);
     }
 
-    public String getLongitude() {
-        return Double.toString(longitude);
+    // Public getters
+
+    public Double getLatitude() {
+        return latitude;
+    }
+
+    public Double getLongitude() {
+        return longitude;
     }
 
     public String getSpeed() {
@@ -209,18 +190,6 @@ public class GpsService extends Service implements GpsInterface{
 
     public String getSatellitesInUse() {
         return SatellitesInUse;
-    }
-
-    public String getStreet() {
-        return street;
-    }
-
-    public String getCity() {
-        return city;
-    }
-
-    public String getPincode() {
-        return pincode;
     }
 
 }
