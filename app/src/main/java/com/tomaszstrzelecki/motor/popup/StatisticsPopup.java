@@ -49,7 +49,7 @@ public class StatisticsPopup extends Activity {
         String kilometers;
 
         try {
-            kilometers = (Double.valueOf(meters)/1000) + "km";
+            kilometers = (Double.valueOf(meters)/1000) + " km";
         } catch (Exception e) {
             Log.e("StatisticsPopup", "There is no value in meters string (" + meters + ")");
             kilometers = "null";
