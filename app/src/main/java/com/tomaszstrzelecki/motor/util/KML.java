@@ -13,18 +13,20 @@ import java.util.ArrayList;
 
 public class KML {
 
-    String name;
-    String description;
+    private String name;
+    private String description;
     private ArrayList<Waypoint> waypoints;
 
-    public KML(String name, String description, ArrayList<Waypoint> waypoints) {
+    public KML(String name, ArrayList<Waypoint> waypoints) {
         this.name = name;
-        this.description = description + " (Wygenerowano w aplikacji Motor - Motorcyclist Rescue)";
+        this.description = name + " (Wygenerowano w aplikacji Motor - Motorcyclist Rescue - " +
+                    DateStamp.getStringDateTime() + ")";
         this.waypoints = waypoints;
+        Log.i("KML", "" + makeKMLFile());
 
     }
 
-    public String makeKMLFile() {
+    private String makeKMLFile() {
         XmlSerializer serializer = Xml.newSerializer();
         StringWriter writer = new StringWriter();
         try {
@@ -32,18 +34,91 @@ public class KML {
             serializer.startDocument("UTF-8", false);
             serializer.startTag("", "kml");
             serializer.attribute("", "xmlns", "http://www.opengis.net/kml/2.2");
-                serializer.startTag("", "Document");
-                    serializer.startTag("", "name");
-                        serializer.text(name);
-                    serializer.endTag("", "name");
-                    serializer.startTag("", "description");
-                        serializer.text(description);
-                    serializer.endTag("", "description");
+            serializer.startTag("", "Document");
+            serializer.startTag("", "name");
+            serializer.text(name);
+            serializer.endTag("", "name");
+            serializer.startTag("", "description");
+            serializer.text(description);
+            serializer.endTag("", "description");
+            serializer.startTag("", "Style");
+            serializer.attribute("", "id", "4dpBluePolyline");
+            serializer.startTag("", "LineStyle");
+            serializer.startTag("", "color");
+            serializer.text("50F06414");
+            serializer.endTag("", "color");
+            serializer.startTag("", "width");
+            serializer.text("4");
+            serializer.endTag("", "width");
+            serializer.endTag("", "LineStyle");
+            serializer.startTag("", "PolyStyle");
+            serializer.startTag("", "color");
+            serializer.text("50F06414");
+            serializer.endTag("", "color");
+            serializer.endTag("", "PolyStyle");
+            serializer.endTag("", "Style");
 
-                serializer.endTag("", "Document");
+            serializer.startTag("", "Placemark");
+            serializer.startTag("", "name");
+            serializer.text("Start trasy");
+            serializer.endTag("", "name");
+            serializer.startTag("", "description");
+            serializer.text(description);
+            serializer.endTag("", "description");
+            serializer.startTag("", "Point");
+            serializer.startTag("", "coordinates");
+            serializer.text(waypoints.get(0).getLongitude() + "," + waypoints.get(0).getLatitude());
+            serializer.endTag("", "coordinates");
+            serializer.endTag("", "Point");
+            serializer.endTag("", "Placemark");
+
+            serializer.startTag("", "Placemark");
+            serializer.startTag("", "name");
+            serializer.text("Trasa");
+            serializer.endTag("", "name");
+            serializer.startTag("", "description");
+            serializer.text(description);
+            serializer.endTag("", "description");
+            serializer.startTag("", "styleUrl");
+            serializer.text("#4dpBluePolyline");
+            serializer.endTag("", "styleUrl");
+            serializer.startTag("", "LineString");
+            serializer.startTag("", "extrude");
+            serializer.text("1");
+            serializer.endTag("", "extrude");
+            serializer.startTag("", "tessellate");
+            serializer.text("1");
+            serializer.endTag("", "tessellate");
+            serializer.startTag("", "altitudeMode");
+            serializer.text("absolute");
+            serializer.endTag("", "altitudeMode");
+            serializer.startTag("", "coordinates");
+            for (Waypoint waypoint : waypoints) {
+                serializer.text("\n" + waypoint.getLongitude() + "," + waypoint.getLatitude());
+            }
+            serializer.endTag("", "coordinates");
+            serializer.endTag("", "LineString");
+            serializer.endTag("", "Placemark");
+
+            serializer.startTag("", "Placemark");
+            serializer.startTag("", "name");
+            serializer.text(description);
+            serializer.endTag("", "name");
+            serializer.startTag("", "description");
+            serializer.text(description);
+            serializer.endTag("", "description");
+            serializer.startTag("", "Point");
+            serializer.startTag("", "coordinates");
+            serializer.text(waypoints.get(waypoints.size()-1).getLongitude() + "," + waypoints.get(waypoints.size()-1).getLatitude());
+            serializer.endTag("", "coordinates");
+            serializer.endTag("", "Point");
+            serializer.endTag("", "Placemark");
+
+            serializer.endTag("", "Document");
             serializer.endTag("", "kml");
+            serializer.endDocument();
         } catch (Exception e) {
-            Log.e("KML", "There is some problem with making KML");
+            Log.e("KML", "There is some problem with making KML: " + e);
         }
         return writer.toString();
     }

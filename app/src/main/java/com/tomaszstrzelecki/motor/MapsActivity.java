@@ -29,6 +29,7 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.tomaszstrzelecki.motor.R;
 import com.tomaszstrzelecki.motor.popup.StatisticsPopup;
 import com.tomaszstrzelecki.motor.track.TrackRead;
+import com.tomaszstrzelecki.motor.util.KML;
 import com.tomaszstrzelecki.motor.util.Notifications;
 
 import static android.R.attr.value;
@@ -39,6 +40,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private GoogleMap mMap;
     private TrackRead track;
     private LatLngBounds trackBounds;
+    private KML kml;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,7 +61,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         Bundle extras = getIntent().getExtras();
         if(extras != null) {
             String name = extras.getString("TRACK_NAME");
-            Log.i("MapsActivity","Value of extras is " + value);
             track = new TrackRead(name, this);
         }
 
@@ -179,6 +180,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         popupWindow.putExtra("TIME", "" + track.getTime());
         popupWindow.putExtra("WAYPOINTS", "" + track.getWaypoints().size());
         startActivity(popupWindow);
-
+        kml = new KML(track.getName(), track.getWaypoints()); // TODO zrobić przycisk do eksportu trasy do KML
     }
 }
