@@ -3,8 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.tomaszstrzelecki.strzelcu.motor.com.tomaszstrzelecki.motor.RoutesActivity">
     <item
-        android:id="@+id/action_settings"
+        android:id="@+id/delete_tracks"
         android:orderInCategory="100"
-        android:title="@string/delete_all_tracks"
-        app:showAsAction="never" />
+        android:title="@string/delete_all_tracks" />
 </menu>

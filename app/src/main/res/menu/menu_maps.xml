@@ -7,4 +7,16 @@
         android:title="Odblokuj mapę"
         app:showAsAction="never"
         android:orderInCategory="1"/>
+
+    <item
+        android:id="@+id/save_kml"
+        android:title="Zapisz KML"
+        app:showAsAction="never"
+        android:orderInCategory="1"/>
+
+    <item
+        android:id="@+id/share_kml"
+        android:title="Udostępnij KML"
+        app:showAsAction="never"
+        android:orderInCategory="1"/>
 </menu>

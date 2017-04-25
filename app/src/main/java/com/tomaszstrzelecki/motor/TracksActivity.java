@@ -14,11 +14,15 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.Marker;
 import com.tomaszstrzelecki.motor.dbhelper.DatabaseHelper;
 import com.tomaszstrzelecki.motor.dbhelper.DatabaseProvider;
 
@@ -46,6 +50,30 @@ public class TracksActivity extends AppCompatActivity {
         dbp = new DatabaseProvider(db);
         drawTrackList();
 
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_tracks, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Intent i;
+
+        switch (item.getItemId()) {
+
+            case R.id.delete_tracks:
+                AlertDialog deleteDialog = askAllTracksDelete();
+                deleteDialog.show();
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+
+        }
     }
 
     public void drawTrackList() {
@@ -131,10 +159,10 @@ public class TracksActivity extends AppCompatActivity {
     private AlertDialog askAllTracksDelete() {
         AlertDialog myDeletingDialogBox = new AlertDialog.Builder(this)
                 // Set message and others
-                .setTitle("Usuwanie wszystkich tras")
+                .setTitle("Usuwanie tras")
                 .setMessage("Czy chcesz usunąć wszystkie zapisane trasy? Usunięcie jest nieodwracalne.")
                 .setIcon(R.drawable.ic_delete_forever_black_24dp)
-                .setPositiveButton("Usuń", new DialogInterface.OnClickListener() {
+                .setPositiveButton("Usuń wszystkie", new DialogInterface.OnClickListener() {
 
                     @Override
                     public void onClick(DialogInterface dialog, int which) {

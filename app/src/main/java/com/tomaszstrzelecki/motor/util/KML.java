@@ -1,32 +1,46 @@
 package com.tomaszstrzelecki.motor.util;
 
 
+import android.content.Context;
+import android.content.Intent;
+import android.graphics.Path;
+import android.net.Uri;
+import android.os.Environment;
 import android.util.Log;
 import android.util.Xml;
+import android.widget.Toast;
 
 import com.tomaszstrzelecki.motor.track.Waypoint;
 
 import org.xmlpull.v1.XmlSerializer;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
+
+import static android.R.attr.path;
+import static android.content.Context.MODE_PRIVATE;
 
 public class KML {
 
     private String name;
     private String description;
     private ArrayList<Waypoint> waypoints;
+    private Context context;
 
-    public KML(String name, ArrayList<Waypoint> waypoints) {
+    public KML(String name, ArrayList<Waypoint> waypoints, Context applicationContext) {
         this.name = name;
-        this.description = name + " (Wygenerowano w aplikacji Motor - Motorcyclist Rescue - " +
+        description = name + " (Wygenerowano w aplikacji Motor - Motorcyclist Rescue - " +
                     DateStamp.getStringDateTime() + ")";
         this.waypoints = waypoints;
-        Log.i("KML", "" + makeKMLFile());
-
+        context = applicationContext;
     }
 
-    private String makeKMLFile() {
+    public String makeKMLFile() {
         XmlSerializer serializer = Xml.newSerializer();
         StringWriter writer = new StringWriter();
         try {
@@ -102,7 +116,7 @@ public class KML {
 
             serializer.startTag("", "Placemark");
             serializer.startTag("", "name");
-            serializer.text(description);
+            serializer.text("Koniec trasy");
             serializer.endTag("", "name");
             serializer.startTag("", "description");
             serializer.text(description);
@@ -123,7 +137,37 @@ public class KML {
         return writer.toString();
     }
 
-    public void saveKMLFile() {
+    public File saveFile(String source) {
 
+        String fileName = name.toLowerCase().replace(" ", "_") + ".kml";
+        File file = null;
+
+        if(isExternalStorageWritable()) {
+
+            File path = new File(Environment.getExternalStorageDirectory() + File.separator + "Motor", "tracks");
+            file = new File(path, fileName);
+
+            if(!path.exists()) {
+                path.mkdirs();
+            }
+
+            if(!file.exists()) {
+                try {
+                    file.createNewFile();
+                    FileOutputStream fileOutputStream = new FileOutputStream(file);
+                    fileOutputStream.write(source.getBytes());
+                    fileOutputStream.close();
+                    Toast.makeText(context.getApplicationContext(), "Zapisano KML w /Motor/tracks", Toast.LENGTH_SHORT).show();
+                } catch (IOException e) {
+                    Log.e("KML", "Somethig happen while saving KML file");
+                }
+            }
+        }
+        return file;
+    }
+
+    public boolean isExternalStorageWritable() {
+        String state = Environment.getExternalStorageState();
+        return Environment.MEDIA_MOUNTED.equals(state);
     }
 }

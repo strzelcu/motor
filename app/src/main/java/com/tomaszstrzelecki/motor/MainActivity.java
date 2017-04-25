@@ -19,6 +19,7 @@ import android.os.Process;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -31,6 +32,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.tomaszstrzelecki.motor.dbhelper.DatabaseHelper;
 import com.tomaszstrzelecki.motor.dbhelper.DatabaseProvider;
@@ -41,6 +43,7 @@ import java.util.Locale;
 
 import static com.tomaszstrzelecki.motor.AppService.isMonitorOn;
 import static com.tomaszstrzelecki.motor.AppService.isNetworkOn;
+import static com.tomaszstrzelecki.motor.MapsActivity.REQUEST_WRITE_EXTERNAL_STORAGE_RESULT;
 import static com.tomaszstrzelecki.motor.R.mipmap.ic_launcher;
 
 public class MainActivity extends AppCompatActivity {

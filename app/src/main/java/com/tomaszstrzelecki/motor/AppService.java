@@ -52,13 +52,13 @@ public class AppService extends Service implements GpsInterface {
             GpsService.LocalBinder binder = (GpsService.LocalBinder) service;
             gpsService = binder.getService();
             isServiceGPSConnect = true;
-            Log.e("System", "GpsService is binded to AppService");
+            Log.i("AppService", "GpsService is binded to AppService");
         }
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
             isServiceGPSConnect = false;
-            Log.e("System", "GpsService is unbinded from AppService");
+            Log.i("AppService", "GpsService is unbinded from AppService");
         }
     };
 
@@ -67,20 +67,20 @@ public class AppService extends Service implements GpsInterface {
     public void startMonitoring() {
         isMonitorOn = true;
         startGPS();
-        Log.e("System", "Monitor started");
+        Log.i("AppService", "Monitor started");
     }
 
     public void stopMonitoring() {
         isMonitorOn = false;
         stopGPS();
-        Log.e("System", "Monitor stopped");
+        Log.i("AppService", "Monitor stopped");
     }
 
     // Service lifecycle
 
     @Override
     public void onCreate() {
-        Log.e("System", "AppService is created");
+        Log.i("AppService", "AppService is created");
         gpsServiceIntent = new Intent(this, GpsService.class);
         bindService(gpsServiceIntent, mConnection, Context.BIND_AUTO_CREATE);
         cm = (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -91,7 +91,7 @@ public class AppService extends Service implements GpsInterface {
 
     @Override
     public void onDestroy() {
-        Log.e("System", "AppService is destroyed");
+        Log.i("AppService", "AppService is destroyed");
         stopService(gpsServiceIntent);
         stopSystemCheckThread();
         super.onDestroy();
@@ -150,13 +150,13 @@ public class AppService extends Service implements GpsInterface {
                 }
             }
         };
-        Log.e("System", "System check thread starts");
+        Log.i("AppService", "System check thread starts");
         systemCheckThread.start();
     }
 
     private  void stopSystemCheckThread() {
         systemCheckThread.interrupt();
-        Log.e("System", "System check thread stops");
+        Log.i("AppService", "System check thread stops");
     }
 
 }

@@ -1,11 +1,18 @@
 package com.tomaszstrzelecki.motor;
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Environment;
 import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -32,7 +39,10 @@ import com.tomaszstrzelecki.motor.track.TrackRead;
 import com.tomaszstrzelecki.motor.util.KML;
 import com.tomaszstrzelecki.motor.util.Notifications;
 
+import java.io.File;
+
 import static android.R.attr.value;
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static com.google.android.gms.maps.model.BitmapDescriptorFactory.HUE_GREEN;
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
@@ -41,6 +51,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private TrackRead track;
     private LatLngBounds trackBounds;
     private KML kml;
+    static final int REQUEST_WRITE_EXTERNAL_STORAGE_RESULT = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -166,6 +177,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 toast.show();
                 return true;
 
+            case R.id.save_kml:
+                saveKMLFile();
+                return true;
+
+            case R.id.share_kml:
+                shareFile(saveKMLFile());
+                return true;
+
             default:
                 return super.onOptionsItemSelected(item);
 
@@ -180,6 +199,47 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         popupWindow.putExtra("TIME", "" + track.getTime());
         popupWindow.putExtra("WAYPOINTS", "" + track.getWaypoints().size());
         startActivity(popupWindow);
-        kml = new KML(track.getName(), track.getWaypoints()); // TODO zrobić przycisk do eksportu trasy do KML
     }
+
+    public File saveKMLFile() {
+        KML kml = new KML(track.getName(), track.getWaypoints(), getApplicationContext());
+        checkWriteExternalStoragePermission();
+        return kml.saveFile(kml.makeKMLFile());
+    }
+
+    public void shareFile(File file) {
+
+        if(file.exists()) {
+            Uri uri = Uri.fromFile(file);
+            Intent share = new Intent(Intent.ACTION_SEND);
+            share.setType("text/plain");
+            share.putExtra(Intent.EXTRA_STREAM, uri);
+            share.setFlags(FLAG_ACTIVITY_NEW_TASK);
+            startActivity(Intent.createChooser(share, "Udostępnij KML"));
+        }
+    }
+
+    private void checkWriteExternalStoragePermission() {
+        if(ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            if(ActivityCompat.shouldShowRequestPermissionRationale(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE)){
+                Toast.makeText(this, "Test", Toast.LENGTH_LONG).show();
+            }
+            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_WRITE_EXTERNAL_STORAGE_RESULT);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if(requestCode == REQUEST_WRITE_EXTERNAL_STORAGE_RESULT) {
+            if(grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+            }
+            else {
+                Toast.makeText(this, "Brak uprawnień do zapisu plików", Toast.LENGTH_LONG).show();
+            }
+        } else {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+    }
+
 }
