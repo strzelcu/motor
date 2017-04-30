@@ -7,6 +7,10 @@
     <uses-permission android:name="android.permission.VIBRATE"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.RECEIVE_SMS"/>
+    <uses-permission android:name="android.permission.SEND_SMS"/>
+
     <uses-feature android:name="android.hardware.location.gps" />
 
 
@@ -16,6 +20,25 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
+        <!-- Register the MissedCallHandler receiver -->
+        <receiver
+            android:name=".phonehandle.MissedCallHandler"
+            android:enabled="true">
+            <intent-filter>
+                <action android:name="android.intent.action.PHONE_STATE" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Register the ReceiveSMSHanlder receiver -->
+        <receiver
+            android:name=".phonehandle.ReceiveSMSHandler"
+            android:enabled="true">
+            <intent-filter>
+                <action android:name="android.provider.Telephony.SMS_RECEIVED" />
+            </intent-filter>
+        </receiver>
+
         <service
             android:name="com.tomaszstrzelecki.motor.gpshandle.GpsService"
             android:exported="false"/>

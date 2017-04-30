@@ -67,12 +67,14 @@ public class AppService extends Service implements GpsInterface {
     public void startMonitoring() {
         isMonitorOn = true;
         startGPS();
+        startSystemCheckThread();
         Log.i("AppService", "Monitor started");
     }
 
     public void stopMonitoring() {
         isMonitorOn = false;
         stopGPS();
+        stopSystemCheckThread();
         Log.i("AppService", "Monitor stopped");
     }
 
@@ -84,7 +86,6 @@ public class AppService extends Service implements GpsInterface {
         gpsServiceIntent = new Intent(this, GpsService.class);
         bindService(gpsServiceIntent, mConnection, Context.BIND_AUTO_CREATE);
         cm = (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
-        startSystemCheckThread();
         startService(gpsServiceIntent);
         super.onCreate();
     }
@@ -93,7 +94,6 @@ public class AppService extends Service implements GpsInterface {
     public void onDestroy() {
         Log.i("AppService", "AppService is destroyed");
         stopService(gpsServiceIntent);
-        stopSystemCheckThread();
         super.onDestroy();
     }
 
@@ -150,13 +150,12 @@ public class AppService extends Service implements GpsInterface {
                 }
             }
         };
-        Log.i("AppService", "System check thread starts");
+        Log.i("AppService", "System check thread started");
         systemCheckThread.start();
     }
 
     private  void stopSystemCheckThread() {
         systemCheckThread.interrupt();
-        Log.i("AppService", "System check thread stops");
+        Log.i("AppService", "System check thread stoped");
     }
-
 }

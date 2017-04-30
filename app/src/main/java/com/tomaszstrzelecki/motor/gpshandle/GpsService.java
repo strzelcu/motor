@@ -34,8 +34,8 @@ import static android.location.LocationProvider.TEMPORARILY_UNAVAILABLE;
 public class GpsService extends Service implements GpsInterface{
 
     private final IBinder mBinder = new LocalBinder();
-    private double latitude;
-    private double longitude;
+    public static double latitude;
+    public static double longitude;
     private double speed;
     private String SatellitesInView = "0";
     private String SatellitesInUse = "0";
@@ -68,7 +68,7 @@ public class GpsService extends Service implements GpsInterface{
         track.saveToDatabase();
     }
 
-    class GpsListener implements GpsStatus.Listener {
+    private class GpsListener implements GpsStatus.Listener {
         @Override
         public void onGpsStatusChanged(int event) {
             int iCountInView = 0;

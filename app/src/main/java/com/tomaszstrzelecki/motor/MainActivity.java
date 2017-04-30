@@ -1,25 +1,22 @@
 package com.tomaszstrzelecki.motor;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
-import android.database.sqlite.SQLiteDatabase;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.LocationManager;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Process;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -28,14 +25,10 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.tomaszstrzelecki.motor.dbhelper.DatabaseHelper;
-import com.tomaszstrzelecki.motor.dbhelper.DatabaseProvider;
 import com.tomaszstrzelecki.motor.util.Notifications;
 
 import java.util.List;
@@ -43,21 +36,20 @@ import java.util.Locale;
 
 import static com.tomaszstrzelecki.motor.AppService.isMonitorOn;
 import static com.tomaszstrzelecki.motor.AppService.isNetworkOn;
-import static com.tomaszstrzelecki.motor.MapsActivity.REQUEST_WRITE_EXTERNAL_STORAGE_RESULT;
-import static com.tomaszstrzelecki.motor.R.mipmap.ic_launcher;
 
 public class MainActivity extends AppCompatActivity {
 
     // Permissions static variable
     static final int PERMISSION_LOCATION_CODE = 1;
+    static final int PERMISSION_PHONE_STATE = 2;
+    static final int PERMISSION_SMS_RECEIVE = 3;
+    static final int PERMISSION_SMS_SEND = 4;
 
     // Declarations
 
     Notifications note = new Notifications(this);
     Thread UIThread;
-    private String city;
-    private String pincode;
-    private String street;
+    boolean allPermissionGranted = false;
 
     //App Service
     AppService appService;
@@ -104,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         try {
-            getSupportActionBar().setLogo(ic_launcher);
+            getSupportActionBar().setLogo(R.mipmap.ic_launcher);
         } catch (NullPointerException e) {
             Log.e("MainActivity", "Can't set logo in the action bar. " + e.getMessage());
         }
@@ -182,9 +174,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onResume() {
         Log.i("MainActivity", "Main activity resumed");
-        checkPermissions();
         refreshMonitoringButton();
         locationAlert();
+        checkPermissions();
         super.onResume();
     }
 
@@ -229,7 +221,6 @@ public class MainActivity extends AppCompatActivity {
                 return true;
 
             case R.id.action_exit:
-                //deleteAllRecords();
                 appService.onDestroy();
                 stopService(appServiceIntent);
                 super.finish();
@@ -268,7 +259,38 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    // Permissions check
+
+    private static class PermissionManager {
+        //A method that can be called from any Activity, to check for specific permission
+        private static void check(Activity activity, String permission, int requestCode){
+            //If requested permission isn't Granted yet
+            if (ActivityCompat.checkSelfPermission(activity, permission) != PackageManager.PERMISSION_GRANTED) {
+                //Request permission from user
+                ActivityCompat.requestPermissions(activity,new String[]{permission},requestCode);
+            }
+        }
+    }
+
     public void checkPermissions() {
+        checkLocationPermissions();
+        checkPhoneStatePermissions();
+        checkSmsReceiveStatePermissions();
+    }
+
+    public void checkSmsReceiveStatePermissions() {
+        PermissionManager.check(this, Manifest.permission.RECEIVE_SMS, PERMISSION_SMS_RECEIVE);
+    }
+
+    public void checkSmsSendStatePermissions() {
+        PermissionManager.check(this, Manifest.permission.RECEIVE_SMS, PERMISSION_SMS_SEND);
+    }
+
+    public void checkPhoneStatePermissions() {
+        PermissionManager.check(this, Manifest.permission.READ_PHONE_STATE, PERMISSION_PHONE_STATE);
+    }
+
+    public void checkLocationPermissions() {
         if (ActivityCompat.checkSelfPermission(this,
                     android.Manifest.permission.ACCESS_COARSE_LOCATION)
                     != PackageManager.PERMISSION_GRANTED &&
@@ -283,14 +305,42 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String permissions[], @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+
         switch (requestCode) {
             case PERMISSION_LOCATION_CODE: {
-                if (grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                    note.showToastMsg("Brak uprawnień do korzystania z lokalizacji.");
-                    checkPermissions();
+                if (grantResults.length > 0 && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                    note.showToastMsg("Brak uprawnień lokalizacji");
+                } else {
+                    // If permission is granted do something!
                 }
+                return;
+            }
+
+            case PERMISSION_PHONE_STATE: {
+                if (grantResults.length > 0 && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                    note.showToastMsg("Brak uprawnień sprawdzania połączeń nieodebranych");
+                } else {
+                    // If permission is granted do something!
+                }
+                return;
+            }
+
+            case PERMISSION_SMS_RECEIVE: {
+                if (grantResults.length > 0 && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                    note.showToastMsg("Brak uprawnień sprawdzania SMSów przychodzących");
+                } else {
+                    // If permission is granted do something!
+                }
+                return;
+            }
+            case PERMISSION_SMS_SEND: {
+                if (grantResults.length > 0 && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                    note.showToastMsg("Brak uprawnień wysyłania SMSów");
+                } else {
+                    // If permission is granted do something!
+                }
+                return;
             }
         }
     }
@@ -393,16 +443,5 @@ public class MainActivity extends AppCompatActivity {
             Log.e("MainActivity","" + e);
         }
 
-    }
-
-    // TO REMOVE AFTER TESTS
-
-    public void deleteAllRecords() {
-        DatabaseHelper dbh = new DatabaseHelper(this);
-        SQLiteDatabase db = dbh.getWritableDatabase();
-        DatabaseProvider dbp = new DatabaseProvider(db);
-        dbp.deleteAllRecords();
-        db.close();
-        dbh.close();
     }
 }
