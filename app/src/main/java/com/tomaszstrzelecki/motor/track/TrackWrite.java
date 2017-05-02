@@ -4,7 +4,9 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Looper;
 import android.util.Log;
+import android.widget.Toast;
 
+import com.tomaszstrzelecki.motor.MainActivity;
 import com.tomaszstrzelecki.motor.dbhelper.DatabaseHelper;
 import com.tomaszstrzelecki.motor.dbhelper.DatabaseProvider;
 import com.tomaszstrzelecki.motor.util.Notifications;
@@ -12,7 +14,9 @@ import com.tomaszstrzelecki.motor.util.Notifications;
 import java.util.ArrayList;
 import java.util.Date;
 
+import static com.google.android.gms.wearable.DataMap.TAG;
 import static com.tomaszstrzelecki.motor.util.DateStamp.getDifferenceBetweenTwoDates;
+import static com.tomaszstrzelecki.motor.util.DateStamp.getDifferenceBetweenTwoDatesMiliseconds;
 import static com.tomaszstrzelecki.motor.util.DateStamp.getStringDate;
 import static com.tomaszstrzelecki.motor.util.DateStamp.getStringDateTime;
 import static com.tomaszstrzelecki.motor.util.DateStamp.getStringTime;
@@ -41,6 +45,7 @@ public class TrackWrite {
         distance = 0;
         note = new Notifications(context);
         waypoints = new ArrayList<>();
+        MainActivity.isTrackSaved = false;
     }
 
     public void addWaypoint(double latitude, double longitude) {
@@ -59,20 +64,24 @@ public class TrackWrite {
         } else {
             previousWaypoint = new Waypoint(newLatitude, newLongitude);
         }
-        Log.i("TrackWrite", "Trasa ma długość " + distance + " metrów."); // TODO REMOVE THIS!
     }
 
-    public void setAveregeSpeed(int speed) {
-        this.speed = (this.speed + speed) / 2;
+    private int getAveregeSpeed(Date startTime, Date stopTime, double distance) {
+        long trackTime = getDifferenceBetweenTwoDatesMiliseconds(startTime, stopTime);
+        trackTime = trackTime / 1000;
+        double speed =  distance / trackTime;
+        return (int) (speed * 3.6);
     }
 
     public void saveToDatabase() {
-        if( distance > 1000) { // If track distance is more than 1 KM.
+        if( distance > 500) { // If track distance is more than 500 M.
             Date stopTime = new Date();
             time = getDifferenceBetweenTwoDates(startTime, stopTime);
+            speed = getAveregeSpeed(startTime, stopTime, distance);
             saveTrack();
         } else {
-            note.showToastMsg("Nie zapisano trasy, ponieważ jest za krótka");
+            MainActivity.isTrackSaved = true;
+            Toast.makeText(context, "Zbyt krótka trasa do zapisu. Trasa powinna mieć co najmniej 500 metrów.", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -88,6 +97,7 @@ public class TrackWrite {
                     dbp.addNewTrack(name, date, time, speed, (int) distance, waypoints);
                     db.close();
                     dbh.close();
+                    MainActivity.isTrackSaved = true;
                     this.interrupt();
                 }
             }

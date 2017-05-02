@@ -54,6 +54,7 @@ public class GpsService extends Service implements GpsInterface{
         }
         track = new TrackWrite(this);
         note.showNotificationMonitoring();
+        Toast.makeText(this, "Gdy poczujesz wibrację, schowaj urządzenie do kieszeni", Toast.LENGTH_LONG).show();
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 30, 2, locationListener);
         locationManager.addGpsStatusListener(gpsListener);
     }
@@ -89,12 +90,8 @@ public class GpsService extends Service implements GpsInterface{
             }
 
             switch (event) {
-                case GpsStatus.GPS_EVENT_STARTED:
-                    showMsg("Szukanie lokalizacji");
-                    break;
                 case GpsStatus.GPS_EVENT_FIRST_FIX:
-                    showMsg("Znaleziono lokalizację. Schowaj urządzenie!");
-                    vibrate(1000);
+                    vibrate(2000);
                     break;
                 default:
             }
@@ -103,10 +100,6 @@ public class GpsService extends Service implements GpsInterface{
             SatellitesInUse = String.valueOf(iCountInUse);
 
         }
-    }
-
-    public void onStartCommand() {
-
     }
 
     @Override
@@ -119,13 +112,12 @@ public class GpsService extends Service implements GpsInterface{
             locationListener = new LocationListener() {
                 @Override
                 public void onLocationChanged(Location location) {
-                    Log.e("Coordinates", "Latitude " + location.getLatitude());
-                    Log.e("Coordinates", "Longitude " + location.getLongitude());
+                    Log.i("Coordinates", "Latitude " + location.getLatitude());
+                    Log.i("Coordinates", "Longitude " + location.getLongitude());
                     latitude = location.getLatitude();
                     longitude = location.getLongitude();
                     speed = location.getSpeed();
                     track.addWaypoint(latitude, longitude);
-                    track.setAveregeSpeed((int) (speed*3.6));
                 }
 
                 @Override
@@ -161,14 +153,6 @@ public class GpsService extends Service implements GpsInterface{
         v.vibrate(miliseconds);
     }
 
-    private int getDistanceTo(double startLatitude, double startLongitude, Location endLocation) {
-        Location startLocation = new Location("START");
-        startLocation.setLatitude(startLatitude);
-        startLocation.setLongitude(startLongitude);
-        float distance = startLocation.distanceTo(endLocation);
-        return Math.round(distance);
-    }
-
     // Public getters
 
     public Double getLatitude() {
@@ -192,4 +176,12 @@ public class GpsService extends Service implements GpsInterface{
         return SatellitesInUse;
     }
 
+    @Override
+    public void onDestroy() {
+        locationManager.removeUpdates(locationListener);
+        if(note != null){
+            note.hideNotification();
+        }
+        super.onDestroy();
+        }
 }

@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.provider.ContactsContract;
 import android.util.Log;
 
+import com.tomaszstrzelecki.motor.MainActivity;
 import com.tomaszstrzelecki.motor.track.Waypoint;
 
 import java.util.ArrayList;

@@ -5,19 +5,17 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
-import com.tomaszstrzelecki.motor.dbhelper.DatabaseHelper;
-import com.tomaszstrzelecki.motor.dbhelper.DatabaseProvider;
+import com.tomaszstrzelecki.motor.physicshandle.PhysicsService;
 import com.tomaszstrzelecki.motor.gpshandle.GpsInterface;
 import com.tomaszstrzelecki.motor.gpshandle.GpsService;
-import com.tomaszstrzelecki.motor.util.Notifications;
+
+import static com.tomaszstrzelecki.motor.MainActivity.isTrackSaved;
 
 public class AppService extends Service implements GpsInterface {
 
@@ -34,7 +32,7 @@ public class AppService extends Service implements GpsInterface {
     @Override
     public IBinder onBind(Intent intent) { return mBinder; }
 
-    public class LocalBinder extends Binder {
+    class LocalBinder extends Binder {
         AppService getService() {
             return AppService.this;
         }
@@ -44,7 +42,7 @@ public class AppService extends Service implements GpsInterface {
     protected boolean isServiceGPSConnect = false;
     Intent gpsServiceIntent;
     GpsService gpsService;
-    private ServiceConnection mConnection = new ServiceConnection() {
+    private ServiceConnection gpsConnection = new ServiceConnection() {
 
         @Override
         public void onServiceConnected(ComponentName className,
@@ -62,11 +60,34 @@ public class AppService extends Service implements GpsInterface {
         }
     };
 
+    //Physics Service
+    protected boolean isServicePhysicsConnect = false;
+    Intent physicsServiceIntent;
+    PhysicsService physicsService;
+    private ServiceConnection physicsConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+            PhysicsService.LocalBinder binder = (PhysicsService.LocalBinder) service;
+            physicsService = binder.getService();
+            isServicePhysicsConnect = true;
+            Log.i("AppService", "PhysicsService is binded to AppService");
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            isServicePhysicsConnect = false;
+            Log.i("AppService", "PhysicsService is unbinded from AppService");
+        }
+    };
+
     // Public methods controling workflow
 
     public void startMonitoring() {
         isMonitorOn = true;
         startGPS();
+        startPhysicsMonitor();
         startSystemCheckThread();
         Log.i("AppService", "Monitor started");
     }
@@ -74,6 +95,7 @@ public class AppService extends Service implements GpsInterface {
     public void stopMonitoring() {
         isMonitorOn = false;
         stopGPS();
+        stopPhysicsMonitor();
         stopSystemCheckThread();
         Log.i("AppService", "Monitor stopped");
     }
@@ -83,17 +105,26 @@ public class AppService extends Service implements GpsInterface {
     @Override
     public void onCreate() {
         Log.i("AppService", "AppService is created");
+
         gpsServiceIntent = new Intent(this, GpsService.class);
-        bindService(gpsServiceIntent, mConnection, Context.BIND_AUTO_CREATE);
+        bindService(gpsServiceIntent, gpsConnection, Context.BIND_AUTO_CREATE);
+
+        physicsServiceIntent = new Intent(this, PhysicsService.class);
+        bindService(physicsServiceIntent, physicsConnection, Context.BIND_AUTO_CREATE);
+
         cm = (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
         startService(gpsServiceIntent);
+        startService(physicsServiceIntent);
         super.onCreate();
     }
 
     @Override
     public void onDestroy() {
         Log.i("AppService", "AppService is destroyed");
+        gpsService.onDestroy();
+        physicsService.onDestroy();
         stopService(gpsServiceIntent);
+        stopService(physicsServiceIntent);
         super.onDestroy();
     }
 
@@ -132,6 +163,14 @@ public class AppService extends Service implements GpsInterface {
     @Override
     public String getSatellitesInUse() {
         return gpsService.getSatellitesInUse();
+    }
+
+    public void startPhysicsMonitor() {
+        physicsService.startPhysicsMonitor();
+    }
+
+    public void stopPhysicsMonitor() {
+        physicsService.stopPhysicsMonitor();
     }
 
     // SystemCheckThread

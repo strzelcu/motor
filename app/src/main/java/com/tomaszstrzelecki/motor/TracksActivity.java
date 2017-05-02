@@ -43,8 +43,6 @@ public class TracksActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        // TODO Zrobić usuwanie wszystkich tras poprzez Menu
-
         dbh = new DatabaseHelper(this);
         db = dbh.getWritableDatabase();
         dbp = new DatabaseProvider(db);
@@ -77,7 +75,7 @@ public class TracksActivity extends AppCompatActivity {
     }
 
     public void drawTrackList() {
-        cursor = db.query("TRACKS", new String[] {"_id", "NAME"}, null, null, null, null, "_id");
+        cursor = db.query("TRACKS", new String[] {"_id", "NAME"}, null, null, null, null, "_id DESC");
         adapter = new SimpleCursorAdapter(
                 this,
                 android.R.layout.simple_list_item_1,
@@ -157,7 +155,7 @@ public class TracksActivity extends AppCompatActivity {
     }
 
     private AlertDialog askAllTracksDelete() {
-        AlertDialog myDeletingDialogBox = new AlertDialog.Builder(this)
+        AlertDialog myAllDeletingDialogBox = new AlertDialog.Builder(this)
                 // Set message and others
                 .setTitle("Usuwanie tras")
                 .setMessage("Czy chcesz usunąć wszystkie zapisane trasy? Usunięcie jest nieodwracalne.")
@@ -177,7 +175,7 @@ public class TracksActivity extends AppCompatActivity {
                     }
                 })
                 .create();
-        return myDeletingDialogBox;
+        return myAllDeletingDialogBox;
     }
 
     public void deleteTrack(String trackName) {

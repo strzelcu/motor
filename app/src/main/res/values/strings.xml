@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">MotoR</string>
+    <string name="app_name">MotoR-Alfa</string>
     <string name="action_settings">Ustawienia</string>
     <string name="title_activity_settings">Ustawienia</string>
     <string name="action_routes">Trasy</string>
@@ -96,7 +96,7 @@
     <string name="main_button_text_start">Start</string>
     <string name="main_button_text_stop">Stop</string>
     <string name="not_available">Niedostępne</string>
-    <string name="searching">Szukam...</string>
+    <string name="searching">Szukam…</string>
     <string name="using">"używa: "</string>
     <string name="available">" dostępne: "</string>
     <string name="delete_all_tracks">Usuń wszystkie trasy</string>

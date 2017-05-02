@@ -19,7 +19,8 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        android:fullBackupContent="true">
 
         <!-- Register the MissedCallHandler receiver -->
         <receiver
@@ -45,6 +46,10 @@
         <service
             android:name="com.tomaszstrzelecki.motor.AppService"
             android:exported="false"/>
+        <service
+            android:name=".physicshandle.PhysicsService"
+            android:exported="false"
+            />
         <activity
             android:name="com.tomaszstrzelecki.motor.MainActivity"
             android:screenOrientation="portrait"

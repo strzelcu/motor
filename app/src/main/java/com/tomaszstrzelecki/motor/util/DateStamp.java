@@ -45,4 +45,10 @@ public class DateStamp {
 
         return difference;
     }
+
+    public static Long getDifferenceBetweenTwoDatesMiliseconds(Date startDate, Date endDate) {
+
+        long different = endDate.getTime() - startDate.getTime();
+        return different;
+    }
 }

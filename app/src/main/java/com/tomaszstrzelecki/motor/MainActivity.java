@@ -2,6 +2,7 @@ package com.tomaszstrzelecki.motor;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -11,11 +12,11 @@ import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.LocationManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Process;
 import android.provider.Settings;
-import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -44,12 +45,16 @@ public class MainActivity extends AppCompatActivity {
     static final int PERMISSION_PHONE_STATE = 2;
     static final int PERMISSION_SMS_RECEIVE = 3;
     static final int PERMISSION_SMS_SEND = 4;
+    static final int PERMISSION_WRITE_EXTERNAL_STORAGE = 5;
 
     // Declarations
 
     Notifications note = new Notifications(this);
     Thread UIThread;
-    boolean allPermissionGranted = false;
+    ProgressDialog saveProgressDialog;
+    Thread saveProgressDialogThread;
+
+    public static boolean isTrackSaved = false;
 
     //App Service
     AppService appService;
@@ -155,6 +160,7 @@ public class MainActivity extends AppCompatActivity {
                     monitoring.setBackgroundResource(R.drawable.monitor_button_green);
                     monitoringImage.setImageResource(R.drawable.ic_play_arrow_black_48dp);
                     monitoringTextView.setText(R.string.main_button_text_start);
+                    launchSavingDialog();
                     appService.stopMonitoring();
                 }
             }
@@ -193,6 +199,13 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onDestroy() {
+        try {
+            if (saveProgressDialog != null && saveProgressDialog.isShowing()) {
+                saveProgressDialog.dismiss();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         Log.i("MainActivity", "Main activity destroyed");
         super.onDestroy();
     }
@@ -276,6 +289,8 @@ public class MainActivity extends AppCompatActivity {
         checkLocationPermissions();
         checkPhoneStatePermissions();
         checkSmsReceiveStatePermissions();
+        checkSmsSendStatePermissions();
+        checkWriteExternalStoragePermissions();
     }
 
     public void checkSmsReceiveStatePermissions() {
@@ -288,6 +303,10 @@ public class MainActivity extends AppCompatActivity {
 
     public void checkPhoneStatePermissions() {
         PermissionManager.check(this, Manifest.permission.READ_PHONE_STATE, PERMISSION_PHONE_STATE);
+    }
+
+    public void checkWriteExternalStoragePermissions() {
+        PermissionManager.check(this, Manifest.permission.WRITE_EXTERNAL_STORAGE, PERMISSION_WRITE_EXTERNAL_STORAGE);
     }
 
     public void checkLocationPermissions() {
@@ -311,8 +330,6 @@ public class MainActivity extends AppCompatActivity {
             case PERMISSION_LOCATION_CODE: {
                 if (grantResults.length > 0 && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
                     note.showToastMsg("Brak uprawnień lokalizacji");
-                } else {
-                    // If permission is granted do something!
                 }
                 return;
             }
@@ -320,8 +337,6 @@ public class MainActivity extends AppCompatActivity {
             case PERMISSION_PHONE_STATE: {
                 if (grantResults.length > 0 && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
                     note.showToastMsg("Brak uprawnień sprawdzania połączeń nieodebranych");
-                } else {
-                    // If permission is granted do something!
                 }
                 return;
             }
@@ -329,18 +344,21 @@ public class MainActivity extends AppCompatActivity {
             case PERMISSION_SMS_RECEIVE: {
                 if (grantResults.length > 0 && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
                     note.showToastMsg("Brak uprawnień sprawdzania SMSów przychodzących");
-                } else {
-                    // If permission is granted do something!
                 }
                 return;
             }
+
             case PERMISSION_SMS_SEND: {
                 if (grantResults.length > 0 && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
                     note.showToastMsg("Brak uprawnień wysyłania SMSów");
-                } else {
-                    // If permission is granted do something!
                 }
                 return;
+            }
+
+            case PERMISSION_WRITE_EXTERNAL_STORAGE: {
+                if (grantResults.length > 0 && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                    note.showToastMsg("Brak uprawnień wysyłania SMSów");
+                }
             }
         }
     }
@@ -378,8 +396,8 @@ public class MainActivity extends AppCompatActivity {
 
         if(isMonitorOn) {
             try {
-                latitudeText.setText("" + appService.getLatitude());
-                longitudeText.setText("" + appService.getLongitude());
+                latitudeText.setText(String.valueOf(appService.getLatitude()));
+                longitudeText.setText(String.valueOf(appService.getLongitude()));
                 satellites.setText(getString(R.string.using) + appService.getSatellitesInUse()
                         + " | "
                         + getString(R.string.available) +
@@ -443,5 +461,30 @@ public class MainActivity extends AppCompatActivity {
             Log.e("MainActivity","" + e);
         }
 
+    }
+
+    // saveProgressDialogThread
+
+    private void launchSavingDialog() {
+        saveProgressDialog = ProgressDialog.show(MainActivity.this, "Zapisywanie trasy", "Proszę czekać", true);
+        saveProgressDialog.setCancelable(false);
+
+        saveProgressDialogThread = new Thread() {
+            @Override
+            public void run() {
+                try {
+                    while (!isInterrupted()) {
+                        Thread.sleep(100);
+                        if(isTrackSaved) {
+                            saveProgressDialog.dismiss();
+                            saveProgressDialogThread.interrupt();
+                        }
+                    }
+                } catch (InterruptedException ignored) {
+                }
+            }
+        };
+        Log.i("AppService", "System check thread started");
+        saveProgressDialogThread.start();
     }
 }
