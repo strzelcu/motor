@@ -42,7 +42,6 @@ public class MissedCallHandler extends BroadcastReceiver {
         if (state.equals(TelephonyManager.EXTRA_STATE_IDLE)){
             // detect missed call
             if(isRinging && !isReceived){
-                Toast.makeText(context, "Wysyłam wiadomość automatyczną", Toast.LENGTH_LONG).show();
                 if (AppService.isMonitorOn) {
                     String message = "Jadę motocyklem i nie mogę odebrać.";
                     SmsProvider.sendSMS(callerPhoneNumber, message, context);

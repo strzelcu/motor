@@ -12,20 +12,22 @@ import java.io.IOException;
 class GyroscopeData {
 
     private StringBuffer data;
+    private int id = 1;
+    private String date;
 
     GyroscopeData() {
         data = new StringBuffer();
-        data.append("X-axis;Y-axis;Z-axis\n");
+        date = DateStamp.getStringDateTime().toLowerCase().replace(" ", "_");
     }
 
     void addData(Float x, Float y, Float z){
-        String record = x + ";" + y + ";" + z + "\n";
+        String record = id + "," + x + "," + y + "," + z + "\n";
         data.append(record);
     }
 
     void saveData(){
 
-        String fileName = DateStamp.getStringDateTime().toLowerCase().replace(" ", "_") + "_gyr.csv";
+        String fileName = date + "_gyr.csv";
         File file;
 
         if(isExternalStorageWritable()) {

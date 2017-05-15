@@ -12,7 +12,6 @@ import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.LocationManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Process;
@@ -38,7 +37,7 @@ import java.util.Locale;
 import static com.tomaszstrzelecki.motor.AppService.isMonitorOn;
 import static com.tomaszstrzelecki.motor.AppService.isNetworkOn;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity{
 
     // Permissions static variable
     static final int PERMISSION_LOCATION_CODE = 1;
@@ -49,10 +48,12 @@ public class MainActivity extends AppCompatActivity {
 
     // Declarations
 
-    Notifications note = new Notifications(this);
     Thread UIThread;
     ProgressDialog saveProgressDialog;
     Thread saveProgressDialogThread;
+
+    MenuItem settingsMenuItem;
+    MenuItem tracksMenuItem;
 
     public static boolean isTrackSaved = false;
 
@@ -153,7 +154,7 @@ public class MainActivity extends AppCompatActivity {
                         monitoringTextView.setText(R.string.main_button_text_stop);
                         appService.startMonitoring();
                     } else {
-                        note.showToastMsg("Lokalizacja wyłączona.");
+                        Notifications.showToastMsg("Lokalizacja wyłączona.", getApplicationContext());
                     }
 
                 } else {
@@ -181,6 +182,7 @@ public class MainActivity extends AppCompatActivity {
     public void onResume() {
         Log.i("MainActivity", "Main activity resumed");
         refreshMonitoringButton();
+        manageMenuOptions();
         locationAlert();
         checkPermissions();
         super.onResume();
@@ -214,7 +216,23 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
+        tracksMenuItem = menu.getItem(1);
+        settingsMenuItem = menu.getItem(2);
         return true;
+    }
+
+    public void manageMenuOptions() {
+        if(isMonitorOn){
+            if(settingsMenuItem != null && tracksMenuItem != null) {
+            settingsMenuItem.setEnabled(false);
+            tracksMenuItem.setEnabled(false);
+            }
+        } else {
+            if(settingsMenuItem != null && tracksMenuItem != null) {
+                settingsMenuItem.setEnabled(true);
+                tracksMenuItem.setEnabled(true);
+            }
+        }
     }
 
     @Override
@@ -329,35 +347,35 @@ public class MainActivity extends AppCompatActivity {
         switch (requestCode) {
             case PERMISSION_LOCATION_CODE: {
                 if (grantResults.length > 0 && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                    note.showToastMsg("Brak uprawnień lokalizacji");
+                    Notifications.showToastMsg("Brak uprawnień lokalizacji", getApplicationContext());
                 }
                 return;
             }
 
             case PERMISSION_PHONE_STATE: {
                 if (grantResults.length > 0 && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                    note.showToastMsg("Brak uprawnień sprawdzania połączeń nieodebranych");
+                    Notifications.showToastMsg("Brak uprawnień sprawdzania połączeń nieodebranych", getApplicationContext());
                 }
                 return;
             }
 
             case PERMISSION_SMS_RECEIVE: {
                 if (grantResults.length > 0 && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                    note.showToastMsg("Brak uprawnień sprawdzania SMSów przychodzących");
+                    Notifications.showToastMsg("Brak uprawnień sprawdzania SMSów przychodzących", getApplicationContext());
                 }
                 return;
             }
 
             case PERMISSION_SMS_SEND: {
                 if (grantResults.length > 0 && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                    note.showToastMsg("Brak uprawnień wysyłania SMSów");
+                    Notifications.showToastMsg("Brak uprawnień wysyłania SMSów", getApplicationContext());
                 }
                 return;
             }
 
             case PERMISSION_WRITE_EXTERNAL_STORAGE: {
                 if (grantResults.length > 0 && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                    note.showToastMsg("Brak uprawnień wysyłania SMSów");
+                    Notifications.showToastMsg("Brak uprawnień wysyłania SMSów", getApplicationContext());
                 }
             }
         }
@@ -376,6 +394,7 @@ public class MainActivity extends AppCompatActivity {
                             @Override
                             public void run() {
                                 updateUI();
+                                manageMenuOptions();
                             }
                         });
                     }

@@ -1,0 +1,48 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="auto_messages_auto_send"
+        android:title="@string/pref_title_auto_sending"
+        android:summary="@string/pref_title_auto_sending_summary"/>
+
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="auto_messages_only_to_contacts"
+        android:title="@string/pref_title_auto_sending_to_all"
+        android:enabled="false"
+        android:summary="Domyślnie wiadomość sms jest wysyłana do wszystkich. Opcja będzie dostępna w wersji 0.3"/>
+
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="auto_messages_add_localization"
+        android:title="@string/pref_title_add_localization_to_message"
+        android:summary="@string/pref_title_add_localization_to_message_summary"
+        android:dependency="auto_messages_auto_send"/>
+
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="auto_messages_add_signature"
+        android:title="@string/pref_title_add_signature_to_message"
+        android:summary="@string/pref_title_add_signature_to_message_summary"
+        android:dependency="auto_messages_auto_send"/>
+
+    <EditTextPreference
+        android:defaultValue="@string/default_signature"
+        android:title="@string/pref_title_signature"
+        android:key="auto_messages_signature"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:dependency="auto_messages_add_signature"
+        />
+
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="auto_messages_remove_polish_signs"
+        android:title="@string/pref_title_remove_polish_signs"
+        android:summary="@string/pref_title_remove_polish_signs_summary"
+        android:dependency="auto_messages_auto_send"/>
+
+
+</PreferenceScreen>

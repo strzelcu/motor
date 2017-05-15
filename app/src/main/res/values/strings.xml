@@ -1,5 +1,6 @@
 <resources>
-    <string name="app_name">MotoR-Alfa</string>
+    <string name="app_name">MotoR</string>
+    <string name="app_short_description">(MotoRApp Alfa)</string>
     <string name="action_settings">Ustawienia</string>
     <string name="title_activity_settings">Ustawienia</string>
     <string name="action_routes">Trasy</string>
@@ -8,27 +9,47 @@
     <!-- Strings related to Settings -->
 
     <!-- Example General settings -->
-    <string name="pref_header_general">Ogólne</string>
+    <string name="pref_physics_header">MotoR Physics</string>
+    <string name="pref_title_physics">Ochrona motocyklisty</string>
+    <string name="pref_title_physics_summary">Wykrywa sytuacje wypadkowe i wysyła
+        wiadomość alarmową pod zdefiniowany numer ICE (Opcja testowa - może nie działać poprawnie)</string>
+    <string name="pref_title_alarm_number">Numer ICE</string>
+    <string name="pref_default_alarm_number">Numer telefonu ICE</string>
+    <string name="pref_title_physics_save_acc_gyr">Zapisuj dane MotoR Physics</string>
+    <string name="pref_title_physics_save_acc_gyr_summary">Zapisuje pomiary akcelerometru i żyroskopu
+        w pamięci wewnętrznej telefonu w katalogu /motor/physics</string>
 
-    <string name="pref_title_social_recommendations">Enable social recommendations</string>
-    <string name="pref_description_social_recommendations">Recommendations for people to contact
-        based on your message history
-    </string>
-
-    <string name="pref_title_display_name">Display name</string>
-    <string name="pref_default_display_name">Tomasz Strzelecki</string>
-
-    <string name="pref_title_add_friends_to_messages">Add friends to messages</string>
-    <string-array name="pref_example_list_titles">
-        <item>Always</item>
-        <item>When possible</item>
-        <item>Never</item>
+    <string name="pref_title_period">Częstotliwość pomiarów</string>
+    <string name="pref_title_period_summary">Zwiększona częstotliwość pomiarów może wpłynąć na zużycie baterii urządzenia</string>
+    <string-array name="pref_title_delay_period">
+        <item>Normalna</item>
+        <item>Częsta</item>
+        <item>W czasie rzeczywistym</item>
     </string-array>
-    <string-array name="pref_example_list_values">
-        <item>1</item>
+    <string-array name="pref_title_delay_period_values">
         <item>0</item>
-        <item>-1</item>
+        <item>1</item>
+        <item>2</item>
     </string-array>
+
+
+    <!-- Settings for auto messages -->
+    <string name="pref_header_auto_messages">Auto SMS</string>
+    <string name="pref_title_auto_sending">Wysyłaj automatyczną wiadomość</string>
+    <string name="pref_title_auto_sending_summary">Automatycznie wysyła wiadomość dla połączeń
+        nieodebranych i smsów w trakcie monitorowania</string>
+    <string name="pref_title_auto_sending_to_all">Wysyłaj tylko do listy kontaktów</string>
+    <string name="pref_title_add_localization_to_message">Dodaj aktualną lokalizację</string>
+    <string name="pref_title_add_localization_to_message_summary">Dodaje do automatycznej wiadomości
+        Twoją aktualną lokalizację z linkiem do Google Maps</string>
+    <string name="default_signature">Tutaj wpisz swój podpis</string>
+    <string name="pref_title_add_signature_to_message">Dodaj podpis do wiadomości</string>
+    <string name="pref_title_add_signature_to_message_summary">Możesz dodać swój indywidualny podpis
+        do wiadomości automatycznych</string>
+    <string name="pref_title_signature">Treść podpisu wiadomości</string>
+    <string name="pref_title_remove_polish_signs">Wiadomości bez polskich znaków</string>
+    <string name="pref_title_remove_polish_signs_summary">Włącz aby wiadomości automatyczne
+        nie zawierały polskich znaków</string>
 
     <!-- Example settings for Data & Sync -->
     <string name="pref_header_data_sync">Data &amp; sync</string>
@@ -67,22 +88,7 @@
 
     <string name="pref_title_system_sync_settings">System sync settings</string>
 
-    <!-- Example settings for Notifications -->
-    <string name="pref_header_notifications">Notifications</string>
-
-    <string name="pref_title_new_message_notifications">New message notifications</string>
-
-    <string name="pref_title_ringtone">Ringtone</string>
-    <string name="pref_ringtone_silent">Silent</string>
-
-    <string name="pref_title_vibrate">Vibrate</string>
-    <string name="title_activity_routes">Ostatnie trasy</string>
-    <string name="large_text">
-        "Material is the metaphor.\n\n"
-    </string>
-    <string name="title_activity_maps">Trasa na mapie</string>
-
-    <!-- Strings of layout labels -->
+    <!-- Strings of UI layout labels -->
     <string name="latitudeLabel">Szerokość geo:</string>
     <string name="longitudeLabel">Długość geo:</string>
     <string name="numberOfSatellitesLabel">Ilość satelit:</string>
@@ -100,5 +106,7 @@
     <string name="using">"używa: "</string>
     <string name="available">" dostępne: "</string>
     <string name="delete_all_tracks">Usuń wszystkie trasy</string>
+    <string name="title_activity_routes">Ostatnie trasy</string>
+    <string name="title_activity_maps">Trasa na mapie</string>
 
 </resources>

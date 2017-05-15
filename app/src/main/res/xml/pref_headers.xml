@@ -1,20 +1,18 @@
 <preference-headers xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- These settings headers are only used on tablets. -->
+    <header
+        android:fragment="com.tomaszstrzelecki.motor.SettingsActivity$MotorPhysicsPreferenceFragment"
+        android:icon="@drawable/ic_smartphone_black_24dp"
+        android:title="@string/pref_physics_header"/>
 
     <header
-        android:fragment="com.tomaszstrzelecki.motor.SettingsActivity$GeneralPreferenceFragment"
-        android:icon="@drawable/ic_info_black_24dp"
-        android:title="@string/pref_header_general" />
+        android:fragment="com.tomaszstrzelecki.motor.SettingsActivity$AutoSMSPreferenceFragment"
+        android:icon="@drawable/ic_textsms_black_24dp"
+        android:title="@string/pref_header_auto_messages" />
 
-    <header
-        android:fragment="com.tomaszstrzelecki.motor.SettingsActivity$NotificationPreferenceFragment"
-        android:icon="@drawable/ic_notifications_black_24dp"
-        android:title="@string/pref_header_notifications" />
-
-    <header
+    <!-- <header
         android:fragment="com.tomaszstrzelecki.motor.SettingsActivity$DataSyncPreferenceFragment"
         android:icon="@drawable/ic_sync_black_24dp"
-        android:title="@string/pref_header_data_sync" />
+        android:title="@string/pref_header_data_sync"/> -->
 
 </preference-headers>

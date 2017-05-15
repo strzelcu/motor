@@ -13,20 +13,22 @@ import java.io.IOException;
 class AccelerometerData {
 
     private StringBuffer data;
+    private int id = 1;
+    private String date;
 
     AccelerometerData() {
         data = new StringBuffer();
-        data.append("X-axis;Y-axis;Z-axis\n");
+        date = DateStamp.getStringDateTime().toLowerCase().replace(" ", "_");
     }
 
     void addData(Float x, Float y, Float z){
-        String record = x + ";" + y + ";" + z + "\n";
+        String record = id + "," + x + "," + y + "," + z + "\n";
         data.append(record);
     }
 
     void saveData(){
 
-        String fileName = DateStamp.getStringDateTime().toLowerCase().replace(" ", "_") + "_acc.csv";
+        String fileName = date + "_acc.csv";
         File file;
 
         if(isExternalStorageWritable()) {

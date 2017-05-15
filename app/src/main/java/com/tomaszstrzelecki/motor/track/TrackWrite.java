@@ -14,7 +14,6 @@ import com.tomaszstrzelecki.motor.util.Notifications;
 import java.util.ArrayList;
 import java.util.Date;
 
-import static com.google.android.gms.wearable.DataMap.TAG;
 import static com.tomaszstrzelecki.motor.util.DateStamp.getDifferenceBetweenTwoDates;
 import static com.tomaszstrzelecki.motor.util.DateStamp.getDifferenceBetweenTwoDatesMiliseconds;
 import static com.tomaszstrzelecki.motor.util.DateStamp.getStringDate;
@@ -43,7 +42,6 @@ public class TrackWrite {
         this.startTime = new Date();
         this.context = context;
         distance = 0;
-        note = new Notifications(context);
         waypoints = new ArrayList<>();
         MainActivity.isTrackSaved = false;
     }

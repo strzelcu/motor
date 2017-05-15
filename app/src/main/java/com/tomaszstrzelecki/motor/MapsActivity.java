@@ -4,18 +4,13 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.Uri;
-import android.os.Build;
-import android.os.Environment;
-import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,24 +21,19 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
-import com.tomaszstrzelecki.motor.R;
 import com.tomaszstrzelecki.motor.popup.StatisticsPopup;
 import com.tomaszstrzelecki.motor.track.TrackRead;
-import com.tomaszstrzelecki.motor.util.KML;
-import com.tomaszstrzelecki.motor.util.Notifications;
+import com.tomaszstrzelecki.motor.gpshandle.KML;
 
 import java.io.File;
 
-import static android.R.attr.value;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
-import static com.google.android.gms.maps.model.BitmapDescriptorFactory.HUE_GREEN;
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -129,14 +119,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.getUiSettings().setAllGesturesEnabled(false);
         mMap.moveCamera(CameraUpdateFactory.newLatLng(start));
         mMap.moveCamera(CameraUpdateFactory.zoomBy(15));
-
         // Show the Track in bounds
 
         mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
             @Override
             public void onMapLoaded() {
-                CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(trackBounds, 300);
-                mMap.animateCamera(cu, 1000, null);
+                //CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(trackBounds, 300);
+                //mMap.animateCamera(cu, 1000, null);
+                mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(trackBounds, 300));
             }
         });
 
@@ -172,7 +162,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         return false;
                     }
                 });
-                item.setVisible(false);
+                item.setEnabled(false);
                 Toast toast = Toast.makeText(this, "Mapa została odblokowana", Toast.LENGTH_SHORT);
                 toast.show();
                 return true;
@@ -241,5 +231,4 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
     }
-
 }

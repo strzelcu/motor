@@ -1,4 +1,4 @@
-package com.tomaszstrzelecki.motor.util;
+package com.tomaszstrzelecki.motor.gpshandle;
 
 
 import android.content.Context;
@@ -11,6 +11,7 @@ import android.util.Xml;
 import android.widget.Toast;
 
 import com.tomaszstrzelecki.motor.track.Waypoint;
+import com.tomaszstrzelecki.motor.util.DateStamp;
 
 import org.xmlpull.v1.XmlSerializer;
 

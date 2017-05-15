@@ -18,7 +18,7 @@
         android:orderInCategory="99"
         android:title="@string/action_settings"
         app:showAsAction="never"
-        android:enabled="false"/>
+        android:enabled="true"/>
     <item
         android:id="@+id/action_exit"
         android:orderInCategory="100"

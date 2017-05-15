@@ -30,6 +30,7 @@ import static android.R.attr.value;
 import static android.location.LocationProvider.AVAILABLE;
 import static android.location.LocationProvider.OUT_OF_SERVICE;
 import static android.location.LocationProvider.TEMPORARILY_UNAVAILABLE;
+import static com.tomaszstrzelecki.motor.AppService.isMonitorOn;
 
 public class GpsService extends Service implements GpsInterface{
 
@@ -43,7 +44,6 @@ public class GpsService extends Service implements GpsInterface{
     LocationManager locationManager;
     LocationListener locationListener;
     protected GpsListener gpsListener = new GpsListener();
-    private Notifications note = new Notifications(this);
     TrackWrite track;
     Vibrator v;
 
@@ -53,7 +53,7 @@ public class GpsService extends Service implements GpsInterface{
             return;
         }
         track = new TrackWrite(this);
-        note.showNotificationMonitoring();
+        Notifications.showNotificationMonitoring(getApplicationContext());
         Toast.makeText(this, "Gdy poczujesz wibrację, schowaj urządzenie do kieszeni", Toast.LENGTH_LONG).show();
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 30, 2, locationListener);
         locationManager.addGpsStatusListener(gpsListener);
@@ -65,7 +65,7 @@ public class GpsService extends Service implements GpsInterface{
             return;
         }
         locationManager.removeUpdates(locationListener);
-        note.hideNotification();
+        Notifications.hideNotification();
         track.saveToDatabase();
     }
 
@@ -91,7 +91,9 @@ public class GpsService extends Service implements GpsInterface{
 
             switch (event) {
                 case GpsStatus.GPS_EVENT_FIRST_FIX:
-                    vibrate(2000);
+                    if(isMonitorOn){
+                        vibrate(2000);
+                    }
                     break;
                 default:
             }
@@ -179,9 +181,7 @@ public class GpsService extends Service implements GpsInterface{
     @Override
     public void onDestroy() {
         locationManager.removeUpdates(locationListener);
-        if(note != null){
-            note.hideNotification();
-        }
+        Notifications.hideNotification();
         super.onDestroy();
         }
 }

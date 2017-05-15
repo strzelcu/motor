@@ -1,5 +1,7 @@
 package com.tomaszstrzelecki.motor;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -83,16 +85,21 @@ public class TracksActivity extends AppCompatActivity {
                 new String[] {"NAME"},
                 new int[]{android.R.id.text1},
                 0);
-        TracklistFragment fragment = new TracklistFragment(adapter);
+        TracklistFragment fragment = new TracklistFragment(adapter, this);
         getSupportFragmentManager().beginTransaction().replace(android.R.id.content, fragment).commit();
     }
 
-
-    public class TracklistFragment extends ListFragment implements AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener {
+    public static class TracklistFragment extends ListFragment implements AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener {
 
         CursorAdapter adapter;
+        TracksActivity context;
 
-        public TracklistFragment(CursorAdapter adapter) {
+        public TracklistFragment() {
+
+        }
+
+        public TracklistFragment(CursorAdapter adapter, TracksActivity context) {
+            this.context = context;
             this.adapter = adapter;
         }
 
@@ -113,12 +120,12 @@ public class TracksActivity extends AppCompatActivity {
 
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            openMap(adapter.getCursor().getString(1));
+            context.openMap(adapter.getCursor().getString(1));
         }
 
         @Override
         public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-            AlertDialog deleteDialog = askTrackDelete(adapter.getCursor().getString(1));
+            AlertDialog deleteDialog = context.askTrackDelete(adapter.getCursor().getString(1));
             deleteDialog.show();
             return true;
         }

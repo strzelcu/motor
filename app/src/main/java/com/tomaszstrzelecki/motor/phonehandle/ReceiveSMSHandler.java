@@ -34,7 +34,6 @@ public class ReceiveSMSHandler extends BroadcastReceiver {
                     senderPhoneNumber = messages[0].getOriginatingAddress();
                 }
                 if (AppService.isMonitorOn) {
-                    Toast.makeText(context, "Wysyłam wiadomość automatyczną", Toast.LENGTH_LONG).show();
                     String message = "Jadę motocyklem i nie mogę odpisać.";
                     SmsProvider.sendSMS(senderPhoneNumber, message, context);
                 }

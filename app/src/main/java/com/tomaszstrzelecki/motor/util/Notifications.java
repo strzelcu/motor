@@ -12,30 +12,28 @@ import com.tomaszstrzelecki.motor.R;
 
 public class Notifications {
 
-    private Context context;
-    private NotificationCompat.Builder mBuilder;
-    private android.app.NotificationManager mNotificationManager;
-    private int id = 1;
 
-    public Notifications(Context context) {
-        this.context = context;
+    private static android.app.NotificationManager mNotificationManager;
+
+    public static void showToastMsg(String msg, Context context) {
+        Toast toast = Toast.makeText(context, msg, Toast.LENGTH_SHORT);
+        toast.show();
     }
 
-    public void showToastMsg(String msg) {
+    public static void showLongToastMsg(String msg, Context context) {
         Toast toast = Toast.makeText(context, msg, Toast.LENGTH_LONG);
         toast.show();
     }
 
-    public void showNotificationMonitoring() {
+    public static void showNotificationMonitoring(Context context) {
         mNotificationManager = (android.app.NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        mBuilder =
-                (NotificationCompat.Builder) new NotificationCompat.Builder(context)
-                        .setSmallIcon(R.mipmap.ic_launcher)
-                        .setTicker("Monitoruję jazdę.")
-                        .setContentTitle("MotoR")
-                        .setContentText("Monitoruję jazdę.")
-                        .setPriority(NotificationCompat.PRIORITY_HIGH)
-                        .setOngoing(true);
+        NotificationCompat.Builder mBuilder = (NotificationCompat.Builder) new NotificationCompat.Builder(context)
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setTicker("Monitoruję jazdę.")
+                .setContentTitle("MotoR")
+                .setContentText("Monitoruję jazdę.")
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setOngoing(true);
         Intent resultIntent = new Intent(context, MainActivity.class);
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
         stackBuilder.addNextIntent(resultIntent);
@@ -45,14 +43,13 @@ public class Notifications {
                         PendingIntent.FLAG_UPDATE_CURRENT
                 );
         mBuilder.setContentIntent(resultPendingIntent);
+        int id = 1;
         mNotificationManager.notify(id, mBuilder.build());
     }
 
-    public void hideNotification() {
-        mNotificationManager.cancelAll();
-    }
-
-    void hideAllNotifications() {
-        hideNotification();
+    public static void hideNotification() {
+        if(mNotificationManager != null) {
+            mNotificationManager.cancelAll();
+        }
     }
 }
