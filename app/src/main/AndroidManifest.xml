@@ -4,23 +4,22 @@
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-    <uses-permission android:name="android.permission.RECEIVE_SMS"/>
-    <uses-permission android:name="android.permission.SEND_SMS"/>
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
+    <uses-permission android:name="android.permission.SEND_SMS" />
 
     <uses-feature android:name="android.hardware.location.gps" />
 
-
     <application
         android:allowBackup="true"
+        android:fullBackupContent="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme"
-        android:fullBackupContent="true">
+        android:theme="@style/AppTheme">
 
         <!-- Register the MissedCallHandler receiver -->
         <receiver
@@ -41,31 +40,32 @@
         </receiver>
 
         <service
-            android:name="com.tomaszstrzelecki.motor.gpshandle.GpsService"
-            android:exported="false"/>
+            android:name=".gpshandle.GpsService"
+            android:exported="false" />
         <service
-            android:name="com.tomaszstrzelecki.motor.AppService"
-            android:exported="false"/>
+            android:name=".AppService"
+            android:exported="false" />
         <service
             android:name=".physicshandle.PhysicsService"
-            android:exported="false"
-            />
-        <activity
-            android:name="com.tomaszstrzelecki.motor.MainActivity"
-            android:screenOrientation="portrait"
-            android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:exported="false" />
+
+        <activity android:name=".Splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
-            android:name="com.tomaszstrzelecki.motor.SettingsActivity"
+            android:name=".MainActivity"
+            android:label="@string/app_name"
             android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar">
+        </activity>
+        <activity
+            android:name=".SettingsActivity"
             android:label="@string/title_activity_settings"
-            android:parentActivityName="com.tomaszstrzelecki.motor.MainActivity">
+            android:parentActivityName=".MainActivity"
+            android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.tomaszstrzelecki.motor.MainActivity" />
@@ -83,37 +83,44 @@
             android:value="@string/google_maps_key" />
 
         <activity
-            android:name="com.tomaszstrzelecki.motor.MapsActivity"
+            android:name=".MapsActivity"
             android:label="@string/title_activity_maps"
+            android:parentActivityName=".TracksActivity"
             android:screenOrientation="portrait"
-            android:parentActivityName="com.tomaszstrzelecki.motor.TracksActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.tomaszstrzelecki.motor.TracksActivity" />
         </activity>
         <activity
-            android:name="com.tomaszstrzelecki.motor.TracksActivity"
-            android:screenOrientation="portrait"
+            android:name=".TracksActivity"
             android:label="@string/title_activity_routes"
-            android:parentActivityName="com.tomaszstrzelecki.motor.MainActivity"
+            android:parentActivityName=".MainActivity"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.tomaszstrzelecki.motor.MainActivity" />
         </activity>
-        
         <activity
             android:name=".popup.StatisticsPopup"
             android:theme="@style/AppTheme.PopupTheme">
-
         </activity>
-        
-        <!-- ATTENTION: This was auto-generated to add Google Play services to your project for
-        App Indexing.  See https://g.co/AppIndexing/AndroidStudio for more information. -->
+
+        <!--
+        ATTENTION: This was auto-generated to add Google Play services to your project for
+        App Indexing.  See https://g.co/AppIndexing/AndroidStudio for more information.
+        -->
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
-    </application>
 
+        <activity android:name=".AboutActivity"
+            android:label="@string/action_about"
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.tomaszstrzelecki.motor.MainActivity" />
+        </activity>
+    </application>
 </manifest>

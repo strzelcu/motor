@@ -216,8 +216,8 @@ public class MainActivity extends AppCompatActivity{
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
-        tracksMenuItem = menu.getItem(1);
-        settingsMenuItem = menu.getItem(2);
+        tracksMenuItem = menu.getItem(2);
+        settingsMenuItem = menu.getItem(3);
         return true;
     }
 
@@ -248,6 +248,21 @@ public class MainActivity extends AppCompatActivity{
 
             case R.id.action_settings:
                 i = new Intent(this, SettingsActivity.class);
+                this.startActivity(i);
+                return true;
+
+            case R.id.action_share:
+                i = new Intent(Intent.ACTION_SEND);
+                i.setType("text/plain");
+                i.putExtra(Intent.EXTRA_SUBJECT, getResources().getString(R.string.app_name));
+                String message = "\nPolecam Ci aplikację MotoR - Asystent motocyklisty\n\n";
+                message += "https://play.google.com/store/apps/details?id=com.tomaszstrzelecki.motor \n\n";
+                i.putExtra(Intent.EXTRA_TEXT, message);
+                this.startActivity(Intent.createChooser(i, "Poleć aplikację"));
+                return true;
+
+            case R.id.action_about:
+                i = new Intent(this, AboutActivity.class);
                 this.startActivity(i);
                 return true;
 

@@ -3,9 +3,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.tomaszstrzelecki.strzelcu.motor.com.tomaszstrzelecki.motor.MainActivity">
     <item
+        android:id="@+id/action_share"
+        android:icon="@drawable/ic_share_white_24dp"
+        android:orderInCategory="1"
+        android:title="@string/actionShare"
+        app:showAsAction="ifRoom"/>
+
+    <item
         android:id="@+id/action_gps"
         android:icon="@drawable/ic_gps_fixed_white_24dp"
-        android:orderInCategory="1"
+        android:orderInCategory="2"
         android:title="@string/actionGps"
         app:showAsAction="ifRoom" />
     <item
@@ -17,11 +24,15 @@
         android:id="@+id/action_settings"
         android:orderInCategory="99"
         android:title="@string/action_settings"
-        app:showAsAction="never"
-        android:enabled="true"/>
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/action_about"
+        android:orderInCategory="100"
+        android:title="@string/action_about"
+        app:showAsAction="never"/>
     <item
         android:id="@+id/action_exit"
-        android:orderInCategory="100"
+        android:orderInCategory="101"
         android:title="@string/action_exit"
         app:showAsAction="never" />
 </menu>

@@ -92,7 +92,8 @@ public class GpsService extends Service implements GpsInterface{
             switch (event) {
                 case GpsStatus.GPS_EVENT_FIRST_FIX:
                     if(isMonitorOn){
-                        vibrate(2000);
+                        vibrate(1000);
+                        showMsg("Znaleziono lokalizację. Schowaj urządzenie.");
                     }
                     break;
                 default:

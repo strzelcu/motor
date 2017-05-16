@@ -1,7 +1,16 @@
 <resources>
     <string name="app_name">MotoR</string>
+    <string name="app_version">Motor 0.2</string>
+    <string name="app_website">Witryna internetowa</string>
+    <string name="app_website_href">http://motor.tomaszstrzelecki.com.pl</string>
+    <string name="app_policy_website">Polityka prywatności aplikacji</string>
+    <string name="app_policy_website_href">http://tomaszstrzelecki.com.pl/motor-polityka-prywatnosci</string>
+    <string name="app_description">Motorcyclist Rescue App</string>
     <string name="app_short_description">(MotoRApp Alfa)</string>
+    <string name="app_sugestion_description">Masz pomysł na nową funkcjonalność?</string>
+    <string name="app_sugestion_mail">motor@tomaszstrzelecki.com.pl</string>
     <string name="action_settings">Ustawienia</string>
+    <string name="action_about">O aplikacji</string>
     <string name="title_activity_settings">Ustawienia</string>
     <string name="action_routes">Trasy</string>
     <string name="action_exit">Zakończ</string>
@@ -96,6 +105,7 @@
     <string name="cityLabel">Miasto:</string>
     <string name="postalCodeLabel">Kod pocztowy:</string>
     <string name="actionGps">Ustawienia GPS</string>
+    <string name="actionShare">Podziel się aplikacją</string>
     <string name="streetLabel">Ulica:</string>
     <string name="current_gps_position">Aktualna pozycja GPS</string>
     <string name="monitoring_label">Monitorowanie jazdy</string>
@@ -108,5 +118,7 @@
     <string name="delete_all_tracks">Usuń wszystkie trasy</string>
     <string name="title_activity_routes">Ostatnie trasy</string>
     <string name="title_activity_maps">Trasa na mapie</string>
+    <string name="title_thanks">Specjalne podziękowania</string>
+    <string name="changelog">Changelog</string>
 
 </resources>
