@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.tomaszstrzelecki.motor.accidenthandle.AlarmActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_centerVertical="true">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/alarm_label"
+            android:textAllCaps="true"
+            android:textAlignment="center"
+            android:textStyle="bold"
+            android:textColor="@android:color/black"
+            android:textSize="40sp" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+        <Button
+            android:layout_width="300dp"
+            android:layout_height="300dp"
+            android:id="@+id/alarmButton"
+            android:layout_marginTop="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginBottom="8dp"
+            android:layout_centerHorizontal="true"
+            tools:background="@drawable/monitor_button_red"
+            android:background="@drawable/monitor_button_red"
+            android:text="30"
+            android:textSize="70sp"
+            android:textAlignment="center"/>
+
+        </RelativeLayout>
+
+        <TextView
+            android:layout_marginTop="8dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/alarm_text"
+            android:text="@string/alarm_summary"
+            android:textSize="24sp"
+            android:textAllCaps="true"
+            android:textStyle="bold"
+            android:textColor="@android:color/black"
+            android:textAlignment="center"/>
+
+    </LinearLayout>
+</RelativeLayout>

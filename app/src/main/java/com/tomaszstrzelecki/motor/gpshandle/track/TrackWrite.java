@@ -1,4 +1,4 @@
-package com.tomaszstrzelecki.motor.track;
+package com.tomaszstrzelecki.motor.gpshandle.track;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -9,6 +9,7 @@ import android.widget.Toast;
 import com.tomaszstrzelecki.motor.MainActivity;
 import com.tomaszstrzelecki.motor.dbhelper.DatabaseHelper;
 import com.tomaszstrzelecki.motor.dbhelper.DatabaseProvider;
+import com.tomaszstrzelecki.motor.util.Distance;
 import com.tomaszstrzelecki.motor.util.Notifications;
 
 import java.util.ArrayList;
@@ -19,6 +20,7 @@ import static com.tomaszstrzelecki.motor.util.DateStamp.getDifferenceBetweenTwoD
 import static com.tomaszstrzelecki.motor.util.DateStamp.getStringDate;
 import static com.tomaszstrzelecki.motor.util.DateStamp.getStringDateTime;
 import static com.tomaszstrzelecki.motor.util.DateStamp.getStringTime;
+import static com.tomaszstrzelecki.motor.util.Distance.calculateDistance;
 
 public class TrackWrite {
 
@@ -53,7 +55,7 @@ public class TrackWrite {
 
     private void addDistance(double newLatitude, double newLongitude) {
         if (previousWaypoint != null) {
-            distance += calculateDistance(
+            distance += Distance.calculateDistance(
                     previousWaypoint.getLatitude(),
                     previousWaypoint.getLongitude(),
                     newLatitude,
@@ -102,26 +104,5 @@ public class TrackWrite {
         };
         Log.i("TrackWrite", "Saving track to database.");
         saveThread.start();
-    }
-
-    private double calculateDistance(double startLatitude, double startLongitude, double endLatitude, double endLongitude)
-    {
-        double theta = startLongitude - endLongitude;
-        double dist = Math.sin(deg2rad(startLatitude)) * Math.sin(deg2rad(endLatitude)) + Math.cos(deg2rad(startLatitude)) * Math.cos(deg2rad(endLatitude)) * Math.cos(deg2rad(theta));
-        dist = Math.acos(dist);
-        dist = rad2deg(dist);
-        dist = dist * 60 * 1.1515;
-        dist = dist * 1.609344 * 1000;
-        return dist;
-    }
-
-    private double deg2rad(double deg)
-    {
-        return (deg * Math.PI / 180.0);
-    }
-
-    private double rad2deg(double rad)
-    {
-        return (rad * 180.0 / Math.PI);
     }
 }

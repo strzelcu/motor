@@ -4,15 +4,11 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
-import android.provider.ContactsContract;
 import android.util.Log;
 
-import com.tomaszstrzelecki.motor.MainActivity;
-import com.tomaszstrzelecki.motor.track.Waypoint;
+import com.tomaszstrzelecki.motor.gpshandle.track.Waypoint;
 
 import java.util.ArrayList;
-
-import static android.R.attr.name;
 
 public class DatabaseProvider {
 

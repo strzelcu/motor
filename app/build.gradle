@@ -7,7 +7,7 @@ android {
         applicationId 'com.tomaszstrzelecki.motor'
         minSdkVersion 19
         targetSdkVersion 25
-        versionCode 4
+        versionCode 5
         versionName "0.2"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
@@ -34,5 +34,6 @@ dependencies {
     compile 'com.android.support:support-v4:25.3.1'
     compile 'com.android.support:support-vector-drawable:25.3.1'
     compile 'com.google.android.gms:play-services-maps:10.2.1'
+    compile 'com.android.support.constraint:constraint-layout:1.0.2'
     testCompile 'junit:junit:4.12'
 }

@@ -28,10 +28,25 @@
     <string name="pref_title_physics_save_acc_gyr_summary">Zapisuje pomiary akcelerometru i żyroskopu
         w pamięci wewnętrznej telefonu w katalogu /motor/physics</string>
 
+    <string name="pref_title_period_message">Okres wysyłania wiadomości alarmowej</string>
+    <string name="pref_title_period_message_summary">Definiuje co jaki czas ma być wysyłana wiadomość alarmowa po wykryciu wypadku</string>
+    <string-array name="pref_title_delay_period_message">
+        <item>30 sekund (domyslnie)</item>
+        <item>60 sekund</item>
+        <item>90 sekund</item>
+        <item>120 sekund</item>
+    </string-array>
+    <string-array name="pref_title_delay_period_message_values">
+        <item>30</item>
+        <item>60</item>
+        <item>90</item>
+        <item>120</item>
+    </string-array>
+
     <string name="pref_title_period">Częstotliwość pomiarów</string>
-    <string name="pref_title_period_summary">Zwiększona częstotliwość pomiarów może wpłynąć na zużycie baterii urządzenia</string>
+    <string name="pref_title_period_summary">Zwiększona częstotliwość pomiarów może znacząco wpłynąć na zużycie baterii urządzenia</string>
     <string-array name="pref_title_delay_period">
-        <item>Normalna</item>
+        <item>Normalna (domyślna)</item>
         <item>Częsta</item>
         <item>W czasie rzeczywistym</item>
     </string-array>
@@ -41,6 +56,35 @@
         <item>2</item>
     </string-array>
 
+    <string name="pref_title_acc_sensitivity">Czułość akcelerometru</string>
+    <string name="pref_title_acc_sensitivity_summary">Dobierz czułość w celu uniknięcia wysyłania fałszywych wiadomości alarmowych</string>
+    <string-array name="pref_title_acc_sensitivity_label">
+        <item>Normalna</item>
+        <item>Średnia (domyślna)</item>
+        <item>Ekstremalna</item>
+        <item>Testowa</item>
+    </string-array>
+    <string-array name="pref_title_acc_sensitivity_values">
+        <item>30</item>
+        <item>25</item>
+        <item>20</item>
+        <item>10</item>
+    </string-array>
+
+    <string name="pref_title_gyr_sensitivity">Czułość żyroskopu</string>
+    <string name="pref_title_gyr_sensitivity_summary">Dobierz czułość w celu uniknięcia wysyłania fałszywych wiadomości alarmowych</string>
+    <string-array name="pref_title_gyr_sensitivity_label">
+        <item>Normalna</item>
+        <item>Średnia (domyślna)</item>
+        <item>Ekstremalna</item>
+        <item>Testowa</item>
+    </string-array>
+    <string-array name="pref_title_gyr_sensitivity_values">
+        <item>30</item>
+        <item>20</item>
+        <item>10</item>
+        <item>5</item>
+    </string-array>
 
     <!-- Settings for auto messages -->
     <string name="pref_header_auto_messages">Auto SMS</string>
@@ -60,7 +104,7 @@
     <string name="pref_title_remove_polish_signs_summary">Włącz aby wiadomości automatyczne
         nie zawierały polskich znaków</string>
 
-    <!-- Example settings for Data & Sync -->
+    <!-- Example settings for next functions -->
     <string name="pref_header_data_sync">Data &amp; sync</string>
 
     <string name="pref_title_sync_frequency">Sync frequency</string>
@@ -120,5 +164,11 @@
     <string name="title_activity_maps">Trasa na mapie</string>
     <string name="title_thanks">Specjalne podziękowania</string>
     <string name="changelog">Changelog</string>
+    <string name="action_test_alarm">Test Alarmu</string>
+    <string name="no_localization_rights">Brak uprawnień do usług lokalizacji</string>
+    <string name="gps_prepare_device">Gdy poczujesz wibrację, schowaj urządzenie do kieszeni</string>
+    <string name="gps_localization_found">Znaleziono lokalizację. Schowaj urządzenie.</string>
+    <string name="alarm_summary">Jeśli wszystko w porządku naciśnij czerwony przycisk</string>
+    <string name="alarm_label">Alarm wypadkowy</string>
 
 </resources>

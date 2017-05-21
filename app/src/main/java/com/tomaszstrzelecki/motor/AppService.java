@@ -5,27 +5,34 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Binder;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
+import com.tomaszstrzelecki.motor.accidenthandle.Alarm;
+import com.tomaszstrzelecki.motor.accidenthandle.AlarmActivity;
 import com.tomaszstrzelecki.motor.physicshandle.PhysicsService;
 import com.tomaszstrzelecki.motor.gpshandle.GpsInterface;
 import com.tomaszstrzelecki.motor.gpshandle.GpsService;
 
-import static com.tomaszstrzelecki.motor.MainActivity.isTrackSaved;
-
 public class AppService extends Service implements GpsInterface {
 
     public static boolean isMonitorOn = false;
-    public static boolean isNetworkOn = false;
+    public static boolean networkIsOn = false;
+    public static boolean alarmIsOn = false;
+    public static boolean alarmActivityRunning = false;
 
     // Declarations
     private final IBinder mBinder = new AppService.LocalBinder();
-    ConnectivityManager cm;
-    Thread systemCheckThread;
+    private ConnectivityManager cm;
+    private SharedPreferences sharedPreferences;
+    private boolean physicsIsOn = false;
+    private Thread systemCheckThread;
+    Alarm alarm = Alarm.getInstance();
 
     // Service binder methods
 
@@ -86,17 +93,27 @@ public class AppService extends Service implements GpsInterface {
 
     public void startMonitoring() {
         isMonitorOn = true;
+        physicsIsOn = sharedPreferences.getBoolean("physics_general", physicsIsOn);
         startGPS();
-        startPhysicsMonitor();
-        startSystemCheckThread();
+        if (physicsIsOn) {
+            startPhysicsMonitor();
+            startSystemCheckThread();
+            alarm.startAlarmCheckThread();
+        }
         Log.i("AppService", "Monitor started");
     }
 
     public void stopMonitoring() {
         isMonitorOn = false;
         stopGPS();
-        stopPhysicsMonitor();
-        stopSystemCheckThread();
+        if(physicsIsOn){
+            stopPhysicsMonitor();
+            stopSystemCheckThread();
+            alarm.stopAlarmCheckThread();
+            alarm.resetAlarm();
+            PhysicsService.resetAlarm();
+            alarmIsOn = false;
+        }
         Log.i("AppService", "Monitor stopped");
     }
 
@@ -106,6 +123,7 @@ public class AppService extends Service implements GpsInterface {
     public void onCreate() {
         Log.i("AppService", "AppService is created");
 
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         gpsServiceIntent = new Intent(this, GpsService.class);
         bindService(gpsServiceIntent, gpsConnection, Context.BIND_AUTO_CREATE);
 
@@ -121,6 +139,7 @@ public class AppService extends Service implements GpsInterface {
     @Override
     public void onDestroy() {
         Log.i("AppService", "AppService is destroyed");
+        alarm.stopAlarmCheckThread();
         gpsService.onDestroy();
         physicsService.onDestroy();
         stopService(gpsServiceIntent);
@@ -181,10 +200,18 @@ public class AppService extends Service implements GpsInterface {
             public void run() {
                 try {
                     while (!isInterrupted()) {
-                        Thread.sleep(2000);
+                        Thread.sleep(1000);
                         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-                        isNetworkOn = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+                        networkIsOn = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+                        if(alarmIsOn){
+                            if(!alarmActivityRunning) {
+                                alarmActivityRunning = true;
+                                runAlarmActivity();
+                            } else {
+                                alarmIsOn = false;
+                            }
                         }
+                    }
                 } catch (InterruptedException ignored) {
                 }
             }
@@ -196,5 +223,11 @@ public class AppService extends Service implements GpsInterface {
     private  void stopSystemCheckThread() {
         systemCheckThread.interrupt();
         Log.i("AppService", "System check thread stoped");
+    }
+
+    private void runAlarmActivity() {
+        Intent i = new Intent(this.getApplication(), AlarmActivity.class);
+        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        this.getApplication().startActivity(i);
     }
 }

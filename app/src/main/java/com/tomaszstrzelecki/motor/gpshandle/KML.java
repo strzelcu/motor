@@ -2,29 +2,21 @@ package com.tomaszstrzelecki.motor.gpshandle;
 
 
 import android.content.Context;
-import android.content.Intent;
-import android.graphics.Path;
-import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
 import android.util.Xml;
 import android.widget.Toast;
 
-import com.tomaszstrzelecki.motor.track.Waypoint;
+import com.tomaszstrzelecki.motor.gpshandle.track.Waypoint;
 import com.tomaszstrzelecki.motor.util.DateStamp;
 
 import org.xmlpull.v1.XmlSerializer;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
-
-import static android.R.attr.path;
-import static android.content.Context.MODE_PRIVATE;
 
 public class KML {
 

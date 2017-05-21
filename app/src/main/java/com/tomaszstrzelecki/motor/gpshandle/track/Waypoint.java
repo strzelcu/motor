@@ -1,4 +1,4 @@
-package com.tomaszstrzelecki.motor.track;
+package com.tomaszstrzelecki.motor.gpshandle.track;
 
 import com.google.android.gms.maps.model.LatLng;
 

@@ -16,6 +16,7 @@ import com.tomaszstrzelecki.motor.R;
 import com.tomaszstrzelecki.motor.gpshandle.GpsService;
 import java.util.ArrayList;
 
+import static android.R.attr.phoneNumber;
 import static com.tomaszstrzelecki.motor.phonehandle.SmsProvider.replacePolishSigns;
 
 
@@ -69,6 +70,7 @@ public class SmsProvider {
         sentPI = PendingIntent.getBroadcast(context, 0,new Intent(SENT), 0);
 
         try {
+            Log.i("SmsProvider", "Auto message is send");
             if(message.length() > MAX_SMS_MESSAGE_LENGTH) {
                 ArrayList<String> messageList = SmsManager.getDefault().divideMessage(message);
                 smsManager.sendMultipartTextMessage(phoneNumber, null, messageList, null, null);
@@ -80,8 +82,48 @@ public class SmsProvider {
         }
     }
 
-    public static void sendAlarmMessage() {
+    public static void sendAlarmMessage(Context context) {
 
+        String SENT = "SMS_SENT";
+        int MAX_SMS_MESSAGE_LENGTH = 70;
+        boolean removePolishSigns = false;
+        String TAG = "SmsProvider";
+        String signature = "";
+        String phoneNumber = "";
+
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        signature = sharedPreferences.getString("auto_messages_signature", signature);
+        removePolishSigns = sharedPreferences.getBoolean("auto_messages_remove_polish_signs", removePolishSigns);
+        phoneNumber = sharedPreferences.getString("physics_telephone_number", phoneNumber);
+
+        String message = "Coś jest nie tak. Spróbuj się ze mną skontaktować.";
+        message += " Aktualnie znajduję się tutaj:";
+        message += " http://www.google.com/maps/place/" +
+                String.valueOf(GpsService.latitude) + "," + String.valueOf(GpsService.longitude);
+        message += " " + signature;
+        message += " " + context.getResources().getString(R.string.app_short_description);
+
+        if(removePolishSigns){
+            message = replacePolishSigns(message);
+        }
+
+        Log.i(TAG, "Alarm message is send");
+
+        SmsManager smsManager = SmsManager.getDefault();
+        PendingIntent sentPI;
+        sentPI = PendingIntent.getBroadcast(context, 0,new Intent(SENT), 0);
+
+        try {
+            Log.i("SmsProvider", "Alarm message is send");
+            if(message.length() > MAX_SMS_MESSAGE_LENGTH) {
+                ArrayList<String> messageList = SmsManager.getDefault().divideMessage(message);
+                smsManager.sendMultipartTextMessage(phoneNumber, null, messageList, null, null);
+            } else {
+                smsManager.sendTextMessage(phoneNumber, null, message, sentPI, null);
+            }
+        } catch (Exception e) {
+            Log.e("SmsProvider", "" + e);
+        }
     }
 
     @NonNull

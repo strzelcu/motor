@@ -13,6 +13,7 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.Process;
 import android.provider.Settings;
@@ -29,13 +30,14 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.tomaszstrzelecki.motor.accidenthandle.AlarmActivity;
 import com.tomaszstrzelecki.motor.util.Notifications;
 
 import java.util.List;
 import java.util.Locale;
 
 import static com.tomaszstrzelecki.motor.AppService.isMonitorOn;
-import static com.tomaszstrzelecki.motor.AppService.isNetworkOn;
+import static com.tomaszstrzelecki.motor.AppService.networkIsOn;
 
 public class MainActivity extends AppCompatActivity{
 
@@ -266,15 +268,22 @@ public class MainActivity extends AppCompatActivity{
                 this.startActivity(i);
                 return true;
 
+            case R.id.action_test_alarm:
+                i = new Intent(MainActivity.this, AlarmActivity.class);
+                startActivity(i);
+                return true;
+
             case R.id.action_exit:
                 appService.onDestroy();
                 stopService(appServiceIntent);
                 super.finish();
                 Process.killProcess(Process.myPid());
                 return true;
+
             case R.id.action_gps:
                 startActivityForResult(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS), 0);
                 return true;
+
             default:
                 return super.onOptionsItemSelected(item);
 
@@ -437,7 +446,7 @@ public class MainActivity extends AppCompatActivity{
                         + getString(R.string.available) +
                         appService.getSatellitesInView());
                 speedText.setText(appService.getSpeed());
-                if (isNetworkOn) {
+                if (networkIsOn) {
                     updateAddress(appService.getLatitude(), appService.getLongitude());
                 } else {
                     cityText.setText(R.string.not_available);

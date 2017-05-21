@@ -4,6 +4,7 @@ import android.app.PendingIntent;
 import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Vibrator;
 import android.support.v7.app.NotificationCompat;
 import android.widget.Toast;
 
@@ -51,5 +52,10 @@ public class Notifications {
         if(mNotificationManager != null) {
             mNotificationManager.cancelAll();
         }
+    }
+
+    public static void vibrate(int miliseconds, Context context) {
+        Vibrator v = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+        v.vibrate(miliseconds);
     }
 }
